@@ -4,7 +4,7 @@ let tempUpload = null;
 
 // Стабильные CDN ссылки
 const TEST_VIDS = [
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "https://daniilbuzov.github.io/rutouurtrt/",
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
 ];
@@ -151,4 +151,5 @@ const observer = new IntersectionObserver(ents => {
         }
     });
 }, { threshold: 0.8 });
+
 
