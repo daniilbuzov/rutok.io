@@ -3,41 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Final</title>
+    <title>TikTok Web HTML</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div id="app">
-        <main id="feed" class="screen active"></main>
 
-        <main id="profile" class="screen">
-            <div class="profile-header">
-                <div class="avatar"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"></div>
-                <h2 id="username">@pro_user</h2>
-                <div class="stats">
-                    <span><b>20</b> Видео</span>
-                    <span><b id="totalLikes">0</b> Лайки</span>
-                </div>
+    <div class="app-container">
+        
+        <div id="feed-screen" class="screen active-screen">
             </div>
 
-            <div class="tabs">
-                <div id="tab-all" class="tab-item active" onclick="switchTab('all')"><i class="fas fa-th"></i></div>
-                <div id="tab-likes" class="tab-item" onclick="switchTab('likes')"><i class="fas fa-heart"></i></div>
+        <div id="profile-screen" class="screen">
+            <div class="profile-header">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar">
+                <h2 id="username">@user_web</h2>
+                <p>20 Видео | <span id="like-counter">0</span> Лайков</p>
+            </div>
+            
+            <div class="profile-tabs">
+                <button onclick="showGrid('all')" class="active-tab">Мои Видео</button>
+                <button onclick="showGrid('likes')">Лайки</button>
             </div>
 
             <div id="grid-all" class="video-grid active-grid"></div>
             <div id="grid-likes" class="video-grid"></div>
-        </main>
+        </div>
 
-        <nav class="nav-bar">
-            <div onclick="openScreen('feed')"><i class="fas fa-home"></i></div>
-            <label class="plus-btn" for="fileInp">+</label>
-            <div onclick="openScreen('profile')"><i class="fas fa-user"></i></div>
-        </nav>
-
-        <input type="file" id="fileInp" accept="video/*" hidden onchange="uploadVideo(event)">
     </div>
+
+    <nav class="bottom-bar">
+        <button onclick="switchScreen('feed')"><i class="fas fa-home"></i></button>
+        
+        <div class="add-button-wrapper">
+            <label for="upload-input" class="add-button">+</label>
+        </div>
+        
+        <button onclick="switchScreen('profile')"><i class="fas fa-user"></i></button>
+    </nav>
+
+    <input type="file" id="upload-input" accept="video/*" hidden onchange="handleUpload(event)">
+
     <script src="script.js"></script>
 </body>
 </html>
