@@ -3,57 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok HTML Interface</title>
+    <title>TikTok New Gen</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+    <div class="app-shell">
+        <main id="screen-feed" class="screen active"></main>
 
-    <div class="mobile-frame">
-        
-        <section id="feed-section" class="app-screen active">
-            </section>
-
-        <section id="profile-section" class="app-screen">
-            <header class="profile-header">
-                <div class="avatar-container">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky" alt="Avatar">
-                </div>
-                <h2 class="username">@html_master</h2>
-                <div class="profile-stats">
-                    <div class="stat"><b>20</b><span>Видео</span></div>
-                    <div class="stat"><b id="like-total">0</b><span>Лайков</span></div>
+        <main id="screen-profile" class="screen">
+            <header class="profile-info">
+                <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=123" class="avatar">
+                <h2>@web_developer</h2>
+                <div class="stats">
+                    <span><b>20</b> видео</span>
+                    <span><b id="likes-count">0</b> лайков</span>
                 </div>
             </header>
 
-            <div class="profile-nav-tabs">
-                <div class="p-tab active" onclick="setGrid('all')"><i class="fas fa-th"></i></div>
-                <div class="p-tab" onclick="setGrid('likes')"><i class="fas fa-heart"></i></div>
+            <div class="profile-tabs">
+                <div class="tab-item active" onclick="switchGrid('all', this)"><i class="fas fa-th"></i></div>
+                <div class="tab-item" onclick="switchGrid('liked', this)"><i class="fas fa-heart"></i></div>
             </div>
 
             <div id="grid-all" class="video-grid active-grid"></div>
-            <div id="grid-likes" class="video-grid"></div>
-        </section>
+            <div id="grid-liked" class="video-grid"></div>
+        </main>
 
-        <nav class="main-nav">
-            <div class="nav-item" onclick="showScreen('feed')">
-                <i class="fas fa-home"></i>
-                <span>Главная</span>
-            </div>
-            
-            <label for="video-input" class="upload-btn">
-                <div class="plus-icon">+</div>
-            </label>
-            
-            <div class="nav-item" onclick="showScreen('profile')">
-                <i class="fas fa-user"></i>
-                <span>Профиль</span>
-            </div>
+        <nav class="bottom-nav">
+            <div class="nav-btn" onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
+            <label for="upload" class="upload-btn">+</label>
+            <div class="nav-btn" onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
         </nav>
 
-        <input type="file" id="video-input" accept="video/*" hidden onchange="handleNewVideo(event)">
+        <input type="file" id="upload" accept="video/*" hidden onchange="handleUpload(event)">
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
