@@ -3,57 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Full Engine</title>
+    <title>TikTok Ultra</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-shell">
-        <main id="screen-feed" class="screen active"></main>
+    <div class="app">
+        <section id="s-feed" class="screen active"></section>
 
-        <main id="screen-profile" class="screen">
-            <header class="profile-info">
-                <div class="avatar-wrapper" onclick="document.getElementById('pfp-input').click()">
-                    <img id="user-avatar" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=1" class="avatar">
-                    <div class="edit-overlay"><i class="fas fa-camera"></i></div>
+        <section id="s-profile" class="screen">
+            <div class="p-header">
+                <div class="p-avatar" onclick="document.getElementById('inp-pfp').click()">
+                    <img id="view-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=1">
+                    <div class="p-edit-icon"><i class="fas fa-camera"></i></div>
                 </div>
-                
-                <h2 id="user-nic" contenteditable="true" onblur="saveProfile()">@username</h2>
-                
-                <div class="stats">
-                    <span><b>20</b> видео</span>
-                    <span><b id="likes-count">0</b> лайков</span>
+                <h2 id="view-name" contenteditable="true" onblur="saveUser()">@username</h2>
+                <div class="p-stats">
+                    <span><b id="count-vids">0</b> видео</span>
+                    <span><b id="count-likes">0</b> лайков</span>
                 </div>
-                <button class="edit-btn" onclick="openEditModal()">Изменить профиль</button>
-            </header>
-
-            <div class="profile-tabs">
-                <div class="tab-item active" onclick="switchGrid('all', this)"><i class="fas fa-th"></i></div>
-                <div class="tab-item" onclick="switchGrid('liked', this)"><i class="fas fa-heart"></i></div>
             </div>
 
-            <div id="grid-all" class="video-grid active-grid"></div>
-            <div id="grid-liked" class="video-grid"></div>
-        </main>
+            <div class="p-tabs">
+                <div class="p-tab active" onclick="setGrid('all', this)"><i class="fas fa-th"></i></div>
+                <div class="p-tab" onclick="setGrid('liked', this)"><i class="fas fa-heart"></i></div>
+            </div>
 
-        <nav class="bottom-nav">
-            <div class="nav-btn" onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
-            <label for="upload" class="upload-btn">+</label>
-            <div class="nav-btn" onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
+            <div id="g-all" class="grid active"></div>
+            <div id="g-liked" class="grid"></div>
+        </section>
+
+        <nav class="navbar">
+            <div onclick="show('feed')"><i class="fas fa-home"></i></div>
+            <label for="inp-vid" class="upload-btn">+</label>
+            <div onclick="show('profile')"><i class="fas fa-user"></i></div>
         </nav>
 
-        <input type="file" id="upload" accept="video/*" hidden onchange="handleUpload(event)">
-        <input type="file" id="pfp-input" accept="image/*" hidden onchange="updateAvatar(event)">
-    </div>
+        <input type="file" id="inp-vid" accept="video/*" hidden onchange="preUpload(event)">
+        <input type="file" id="inp-pfp" accept="image/*" hidden onchange="updatePfp(event)">
 
-    <div id="desc-modal" class="modal">
-        <div class="modal-content">
-            <h3>Описание видео</h3>
-            <input type="text" id="video-desc-input" placeholder="Введите описание...">
-            <button onclick="confirmUpload()">Опубликовать</button>
+        <div id="modal-desc" class="modal">
+            <div class="modal-box">
+                <h3>Новое видео</h3>
+                <input type="text" id="inp-desc" placeholder="Добавьте описание...">
+                <button onclick="finishUpload()">Опубликовать</button>
+            </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
