@@ -31,9 +31,9 @@ function refreshApp() {
         const myVideos = e.target.result || [];
         let masterList = [...myVideos.reverse()];
         
-        // Создаем 20 видео
-        for(let i=0; i<20; i++) {
-            masterList.push({ id: 'srv_'+i, url: TEST_VIDS[i % TEST_VIDS.length], isSrv: true, desc: 'Популярное видео ' + (i+1) });
+        // Создаем 3 видео
+        for(let i=0; i<3; i++) {
+            masterList.push({ id: 'srv_'+i, url: TEST_VIDS[i % TEST_VIDS.length], isSrv: true, desc: 'тестовое видио ' + (i+1) });
         }
         renderContent(masterList);
     };
@@ -151,3 +151,4 @@ const observer = new IntersectionObserver(ents => {
         }
     });
 }, { threshold: 0.8 });
+
