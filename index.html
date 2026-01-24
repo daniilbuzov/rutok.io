@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Final Edition</title>
+    <title>TikTok Pro Edition</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -12,39 +12,31 @@
         <main id="feed" class="screen active"></main>
 
         <main id="profile" class="screen">
-            <div class="profile-ui">
-                <div class="pfp-container" onclick="document.getElementById('pfpInp').click()">
-                    <img id="userPfp" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=tiktok">
-                    <div class="pfp-overlay"><i class="fas fa-camera"></i></div>
+            <div class="profile-header">
+                <div class="avatar-box"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=8"></div>
+                <h2 id="userName">@user_pro</h2>
+                <div class="stats">
+                    <div><b>20</b> Видео</div>
+                    <div><b id="likeCount">0</b> Лайков</div>
                 </div>
-                <h2 id="userName" contenteditable="true" spellcheck="false" onblur="updateProfileData()">@username</h2>
-                <p id="userBio" contenteditable="true" spellcheck="false" onblur="updateProfileData()">Нажми, чтобы изменить био...</p>
             </div>
-            <div id="profileGrid" class="video-grid"></div>
+
+            <div class="profile-tabs">
+                <div class="tab-btn active" onclick="switchProfileTab('my-vids', this)"><i class="fas fa-th"></i></div>
+                <div class="tab-btn" onclick="switchProfileTab('liked-vids', this)"><i class="fas fa-heart"></i></div>
+            </div>
+
+            <div id="my-vids" class="grid-content active"></div>
+            <div id="liked-vids" class="grid-content"></div>
         </main>
 
-        <div id="uploadModal" class="modal-full">
-            <div class="modal-content">
-                <h3>Публикация</h3>
-                <div class="preview-wrapper">
-                    <video id="previewVid" muted autoplay loop></video>
-                </div>
-                <input type="text" id="descInp" placeholder="О чем это видео?">
-                <div class="modal-actions">
-                    <button class="btn-sec" onclick="cancelUpload()">Отмена</button>
-                    <button class="btn-pri" onclick="finishUpload()">Опубликовать</button>
-                </div>
-            </div>
-        </div>
-
         <nav class="footer-nav">
-            <div class="tab" onclick="changeTab('feed')"><i class="fas fa-home"></i></div>
-            <label for="fileInp" class="plus-box"><i class="fas fa-plus"></i></label>
-            <div class="tab" onclick="changeTab('profile')"><i class="fas fa-user"></i></div>
+            <div onclick="changeTab('feed')"><i class="fas fa-home"></i></div>
+            <label for="fileInp" class="plus-box">+</label>
+            <div onclick="changeTab('profile')"><i class="fas fa-user"></i></div>
         </nav>
 
-        <input type="file" id="fileInp" accept="video/*" hidden onchange="startUpload(event)">
-        <input type="file" id="pfpInp" accept="image/*" hidden onchange="changePfp(event)">
+        <input type="file" id="fileInp" accept="video/*" hidden onchange="uploadVideo(event)">
     </div>
     <script src="script.js"></script>
 </body>
