@@ -3,46 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Web HTML</title>
+    <title>TikTok Final Fix</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="app-container">
+    <div id="app">
         
-        <div id="feed-screen" class="screen active-screen">
+        <div id="feed-screen" class="screen active">
             </div>
 
         <div id="profile-screen" class="screen">
             <div class="profile-header">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar">
-                <h2 id="username">@user_web</h2>
-                <p>20 Видео | <span id="like-counter">0</span> Лайков</p>
-            </div>
-            
-            <div class="profile-tabs">
-                <button onclick="showGrid('all')" class="active-tab">Мои Видео</button>
-                <button onclick="showGrid('likes')">Лайки</button>
+                <div class="pfp-box">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix">
+                </div>
+                <h2>@user_pro</h2>
+                <div class="stats">
+                    <span><b>20</b> Видео</span>
+                    <span><b id="total-likes">0</b> Лайков</span>
+                </div>
             </div>
 
-            <div id="grid-all" class="video-grid active-grid"></div>
-            <div id="grid-likes" class="video-grid"></div>
+            <div class="tabs-bar">
+                <button onclick="switchGrid('all')" class="tab active-tab" id="btn-all"><i class="fas fa-th"></i></button>
+                <button onclick="switchGrid('likes')" class="tab" id="btn-likes"><i class="fas fa-heart"></i></button>
+            </div>
+
+            <div id="grid-all" class="grid-view active-grid"></div>
+            <div id="grid-likes" class="grid-view"></div>
         </div>
 
     </div>
 
-    <nav class="bottom-bar">
-        <button onclick="switchScreen('feed')"><i class="fas fa-home"></i></button>
+    <nav class="bottom-nav">
+        <div onclick="openTab('feed')"><i class="fas fa-home"></i></div>
         
-        <div class="add-button-wrapper">
-            <label for="upload-input" class="add-button">+</label>
+        <div class="add-btn-wrapper">
+            <label for="video-upload" class="plus-btn">+</label>
         </div>
         
-        <button onclick="switchScreen('profile')"><i class="fas fa-user"></i></button>
+        <div onclick="openTab('profile')"><i class="fas fa-user"></i></div>
     </nav>
 
-    <input type="file" id="upload-input" accept="video/*" hidden onchange="handleUpload(event)">
+    <input type="file" id="video-upload" accept="video/*" hidden onchange="handleUpload(event)">
 
     <script src="script.js"></script>
 </body>
