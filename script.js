@@ -1,113 +1,37 @@
-let db;
-let currentUpload = null;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; overflow: hidden; }
+#app { width: 100%; max-width: 450px; margin: 0 auto; height: 100%; position: relative; }
 
-// Инициализация БД
-const request = indexedDB.open("TikTokV5", 1);
-request.onupgradeneeded = e => {
-    e.target.result.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
-};
-request.onsuccess = e => { db = e.target.result; loadFeed(); };
+.screen { display: none; height: calc(100% - 70px); overflow-y: auto; }
+.active { display: block; }
 
-// Загрузка видео
-function startUpload(e) {
-    currentUpload = e.target.files[0];
-    if (!currentUpload) return;
-    document.getElementById('previewVid').src = URL.createObjectURL(currentUpload);
-    document.getElementById('uploadModal').style.display = 'flex';
+/* Сетка профиля */
+.profile-tabs { display: flex; border-top: 1px solid #222; border-bottom: 1px solid #222; margin-top: 20px; }
+.tab-btn { flex: 1; text-align: center; padding: 12px; color: #888; cursor: pointer; }
+.tab-btn.active { color: #fff; border-bottom: 2px solid #fff; }
+
+.grid-content { display: none; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.grid-content.active { display: grid; }
+.grid-item { aspect-ratio: 3/4; background: #111; overflow: hidden; }
+.grid-item video { width: 100%; height: 100%; object-fit: cover; }
+
+/* Элементы видео в ленте */
+.video-card { height: 100%; scroll-snap-align: start; position: relative; background: #000; }
+video { width: 100%; height: 100%; object-fit: cover; }
+.side-ui { position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
+.side-ui i { font-size: 30px; text-shadow: 0 0 5px #000; }
+.heart-active { color: #fe2c55; }
+
+/* Анимация сердца */
+.floating-heart {
+    position: absolute; color: #fe2c55; font-size: 80px; z-index: 100;
+    pointer-events: none; animation: heartFade 0.8s ease-out forwards;
+}
+@keyframes heartFade {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0; transform: translateY(-100px); }
 }
 
-function cancelUpload() {
-    document.getElementById('uploadModal').style.display = 'none';
-}
-
-function finishUpload() {
-    const desc = document.getElementById('descInp').value || "Без описания";
-    const tx = db.transaction("videos", "readwrite");
-    tx.objectStore("videos").add({ blob: currentUpload, desc: desc });
-    tx.oncomplete = () => location.reload();
-}
-
-// Отображение ленты
-function loadFeed() {
-    const feed = document.getElementById('feed');
-    feed.innerHTML = '';
-    
-    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        const videos = e.target.result.reverse();
-        
-        if (videos.length === 0) {
-            feed.innerHTML = `<div style="padding-top:200px; text-align:center; opacity:0.5">
-                <i class="fas fa-film" style="font-size:40px"></i><br><br>Лента пуста. Добавь видео!
-            </div>`;
-            return;
-        }
-
-        videos.forEach(item => {
-            const url = URL.createObjectURL(item.blob);
-            const card = document.createElement('div');
-            card.className = 'video-item';
-            card.innerHTML = `
-                <video src="${url}" loop playsinline muted></video>
-                <div class="side-actions">
-                    <i class="fas fa-heart" onclick="this.style.color='#fe2c55'"></i>
-                    <i class="fas fa-trash" onclick="removeVideo(${item.id})" style="font-size:18px; opacity:0.3"></i>
-                </div>
-                <div class="overlay-info">
-                    <h3>@${localStorage.getItem('nick') || 'username'}</h3>
-                    <p>${item.desc}</p>
-                </div>
-            `;
-            
-            card.onclick = (ev) => {
-                if (ev.target.tagName !== 'I') {
-                    const v = card.querySelector('video');
-                    v.muted = false;
-                    v.paused ? v.play() : v.pause();
-                }
-            };
-            
-            feed.appendChild(card);
-            observer.observe(card);
-        });
-    };
-}
-
-// Профиль
-function updateProfileData() {
-    localStorage.setItem('nick', document.getElementById('userName').innerText);
-    localStorage.setItem('bio', document.getElementById('userBio').innerText);
-}
-
-function changePfp(e) {
-    const reader = new FileReader();
-    reader.onload = () => {
-        document.getElementById('userPfp').src = reader.result;
-        localStorage.setItem('avatar', reader.result);
-    };
-    reader.readAsDataURL(e.target.files[0]);
-}
-
-function changeTab(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-}
-
-function removeVideo(id) {
-    if (confirm("Удалить это видео?")) {
-        db.transaction("videos", "readwrite").objectStore("videos").delete(id).onsuccess = () => location.reload();
-    }
-}
-
-// Автоплей
-const observer = new IntersectionObserver(ents => {
-    ents.forEach(en => {
-        const v = en.target.querySelector('video');
-        en.isIntersecting ? v.play() : v.pause();
-    });
-}, { threshold: 0.7 });
-
-window.onload = () => {
-    document.getElementById('userName').innerText = localStorage.getItem('nick') || "@username";
-    document.getElementById('userBio').innerText = localStorage.getItem('bio') || "Твое био...";
-    if (localStorage.getItem('avatar')) document.getElementById('userPfp').src = localStorage.getItem('avatar');
-};
+.footer-nav { position: absolute; bottom: 0; width: 100%; height: 70px; display: flex; justify-content: space-around; align-items: center; background: #000; border-top: 1px solid #222; }
+.plus-box { background: #fff; color: #000; padding: 5px 15px; border-radius: 8px; font-weight: bold; }
