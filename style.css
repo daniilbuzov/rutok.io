@@ -1,0 +1,44 @@
+:root { --accent: #00f2ea; --pink: #ff0050; --bg: #0b0b0b; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background: #000; color: white; height: 100vh; display: flex; justify-content: center; }
+
+#app { width: 100%; max-width: 450px; height: 100%; position: relative; background: var(--bg); overflow: hidden; }
+
+/* Экраны */
+.screen { display: none; height: calc(100% - 70px); overflow-y: auto; }
+.active { display: block; }
+
+/* Видео карточка */
+#feed { scroll-snap-type: y mandatory; height: 100%; overflow-y: scroll; scrollbar-width: none; }
+.video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; }
+video { width: 100%; height: 100%; object-fit: cover; } /* Теперь видео просто заполняет экран */
+
+/* Описание и кнопки */
+.ui-layer { 
+    position: absolute; bottom: 0; left: 0; width: 100%; 
+    padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); 
+}
+.video-desc { margin-bottom: 60px; }
+.video-desc h3 { font-size: 16px; margin-bottom: 5px; color: var(--accent); }
+.video-desc p { font-size: 14px; opacity: 0.9; line-height: 1.4; }
+
+.side-btns { 
+    position: absolute; right: 15px; bottom: 120px; 
+    display: flex; flex-direction: column; gap: 20px; 
+}
+.side-btns i { font-size: 28px; cursor: pointer; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+
+/* Модальное окно */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
+.modal-box { width: 85%; background: #1a1a1a; padding: 20px; border-radius: 20px; }
+#editorPrev { width: 100%; height: 200px; border-radius: 12px; margin-bottom: 15px; }
+textarea { width: 100%; height: 80px; background: #222; border: none; border-radius: 10px; color: #fff; padding: 10px; resize: none; margin-bottom: 15px; }
+.btn-post { width: 100%; background: var(--pink); border: none; padding: 12px; border-radius: 10px; color: white; font-weight: bold; }
+
+/* Навигация */
+.main-nav { 
+    position: absolute; bottom: 0; width: 100%; height: 70px; 
+    display: flex; justify-content: space-around; align-items: center; 
+    background: #000; border-top: 1px solid #222; 
+}
+.center-btn { background: #fff; color: #000; width: 50px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }

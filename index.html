@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TikTok Redesign</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div id="app">
+        <main id="feed" class="screen active"></main>
+
+        <main id="profile" class="screen">
+            <div class="profile-header">
+                <div class="avatar-box" onclick="document.getElementById('pfpInp').click()">
+                    <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=7">
+                </div>
+                <h2 id="userName" contenteditable="true" onblur="saveProfileData()">@username</h2>
+                <p id="userBio" contenteditable="true" onblur="saveProfileData()">О себе...</p>
+            </div>
+            <div class="profile-grid" id="profileGrid"></div>
+        </main>
+
+        <div id="uploadModal" class="modal">
+            <div class="modal-box">
+                <video id="editorPrev" muted autoplay loop></video>
+                <textarea id="descInp" placeholder="Напишите крутое описание..."></textarea>
+                <button class="btn-post" onclick="publishVideo()">Опубликовать</button>
+                <button class="btn-cancel" onclick="closeModal()">Отмена</button>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <div onclick="switchTab('feed')"><i class="fas fa-play"></i></div>
+            <div class="center-btn" onclick="document.getElementById('fileInp').click()">+</div>
+            <div onclick="switchTab('profile')"><i class="fas fa-user-alt"></i></div>
+        </nav>
+
+        <input type="file" id="fileInp" accept="video/*" hidden onchange="onFileSelected(event)">
+        <input type="file" id="pfpInp" accept="image/*" hidden onchange="updatePfp(event)">
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
