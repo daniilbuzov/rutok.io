@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Ultra</title>
+    <title>TikTok Fix Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -14,10 +14,10 @@
         <section id="s-profile" class="screen">
             <div class="p-header">
                 <div class="p-avatar" onclick="document.getElementById('inp-pfp').click()">
-                    <img id="view-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=1">
+                    <img id="view-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Base">
                     <div class="p-edit-icon"><i class="fas fa-camera"></i></div>
                 </div>
-                <h2 id="view-name" contenteditable="true" onblur="saveUser()">@username</h2>
+                <h2 id="view-name" contenteditable="true" onblur="saveUser()">@web_hero</h2>
                 <div class="p-stats">
                     <span><b id="count-vids">0</b> видео</span>
                     <span><b id="count-likes">0</b> лайков</span>
@@ -44,9 +44,9 @@
 
         <div id="modal-desc" class="modal">
             <div class="modal-box">
-                <h3>Новое видео</h3>
-                <input type="text" id="inp-desc" placeholder="Добавьте описание...">
-                <button onclick="finishUpload()">Опубликовать</button>
+                <h3>Публикация</h3>
+                <input type="text" id="inp-desc" placeholder="О чем это видео?">
+                <button onclick="finishUpload()">Загрузить</button>
             </div>
         </div>
     </div>
