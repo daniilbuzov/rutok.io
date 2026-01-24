@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok New Gen</title>
+    <title>TikTok Full Engine</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -13,12 +13,18 @@
 
         <main id="screen-profile" class="screen">
             <header class="profile-info">
-                <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=123" class="avatar">
-                <h2>@web_developer</h2>
+                <div class="avatar-wrapper" onclick="document.getElementById('pfp-input').click()">
+                    <img id="user-avatar" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=1" class="avatar">
+                    <div class="edit-overlay"><i class="fas fa-camera"></i></div>
+                </div>
+                
+                <h2 id="user-nic" contenteditable="true" onblur="saveProfile()">@username</h2>
+                
                 <div class="stats">
                     <span><b>20</b> видео</span>
                     <span><b id="likes-count">0</b> лайков</span>
                 </div>
+                <button class="edit-btn" onclick="openEditModal()">Изменить профиль</button>
             </header>
 
             <div class="profile-tabs">
@@ -37,7 +43,17 @@
         </nav>
 
         <input type="file" id="upload" accept="video/*" hidden onchange="handleUpload(event)">
+        <input type="file" id="pfp-input" accept="image/*" hidden onchange="updateAvatar(event)">
     </div>
+
+    <div id="desc-modal" class="modal">
+        <div class="modal-content">
+            <h3>Описание видео</h3>
+            <input type="text" id="video-desc-input" placeholder="Введите описание...">
+            <button onclick="confirmUpload()">Опубликовать</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
