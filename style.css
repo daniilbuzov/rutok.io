@@ -1,46 +1,49 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #000; color: #fff; font-family: sans-serif; height: 100dvh; overflow: hidden; }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TikTok Web HTML</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
 
-#app { width: 100%; max-width: 450px; margin: 0 auto; height: 100%; position: relative; }
-.screen { display: none; height: calc(100% - 60px); overflow-y: scroll; scrollbar-width: none; }
-.active { display: block; }
+    <div class="app-container">
+        
+        <div id="feed-screen" class="screen active-screen">
+            </div>
 
-/* Видео в ленте */
-#feed { scroll-snap-type: y mandatory; }
-.video-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #111; }
-video { width: 100%; height: 100%; object-fit: cover; }
+        <div id="profile-screen" class="screen">
+            <div class="profile-header">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar">
+                <h2 id="username">@user_web</h2>
+                <p>20 Видео | <span id="like-counter">0</span> Лайков</p>
+            </div>
+            
+            <div class="profile-tabs">
+                <button onclick="showGrid('all')" class="active-tab">Мои Видео</button>
+                <button onclick="showGrid('likes')">Лайки</button>
+            </div>
 
-/* Интерфейс поверх видео */
-.sidebar { position: absolute; right: 10px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10; align-items: center; }
-.sidebar i { font-size: 30px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: 0.2s; }
-.liked { color: #fe2c55; transform: scale(1.1); }
+            <div id="grid-all" class="video-grid active-grid"></div>
+            <div id="grid-likes" class="video-grid"></div>
+        </div>
 
-.info { position: absolute; bottom: 80px; left: 15px; z-index: 10; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    </div>
 
-/* Профиль */
-.profile-header { padding: 30px 20px; text-align: center; }
-.avatar { width: 80px; height: 80px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; border: 2px solid #333; }
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
-.stats { display: flex; justify-content: center; gap: 20px; margin-top: 10px; font-size: 14px; }
+    <nav class="bottom-bar">
+        <button onclick="switchScreen('feed')"><i class="fas fa-home"></i></button>
+        
+        <div class="add-button-wrapper">
+            <label for="upload-input" class="add-button">+</label>
+        </div>
+        
+        <button onclick="switchScreen('profile')"><i class="fas fa-user"></i></button>
+    </nav>
 
-/* Вкладки профиля */
-.tabs { display: flex; border-top: 1px solid #222; border-bottom: 1px solid #222; }
-.tab-item { flex: 1; padding: 12px; text-align: center; color: #555; cursor: pointer; }
-.tab-item.active { color: #fff; border-bottom: 2px solid #fff; }
+    <input type="file" id="upload-input" accept="video/*" hidden onchange="handleUpload(event)">
 
-.video-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 1px; }
-.active-grid { display: grid; }
-.grid-box { aspect-ratio: 3/4; background: #222; overflow: hidden; }
-.grid-box video { width: 100%; height: 100%; object-fit: cover; }
-
-/* Навигация */
-.nav-bar { position: absolute; bottom: 0; width: 100%; height: 60px; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-.plus-btn { background: #fff; color: #000; padding: 4px 14px; border-radius: 8px; font-size: 20px; font-weight: bold; }
-
-/* Анимация сердца */
-.pop-heart { position: absolute; color: #fe2c55; font-size: 80px; animation: pop 0.8s ease-out forwards; pointer-events: none; z-index: 999; }
-@keyframes pop {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(1); opacity: 0; transform: translateY(-100px); }
-}
+    <script src="script.js"></script>
+</body>
+</html>
