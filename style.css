@@ -1,49 +1,118 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Web HTML</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-</head>
-<body>
+/* Сброс стилей браузера */
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-    <div class="app-container">
-        
-        <div id="feed-screen" class="screen active-screen">
-            </div>
+body {
+    background-color: #000;
+    color: white;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow: hidden; /* Запрещаем скролл всей страницы */
+}
 
-        <div id="profile-screen" class="screen">
-            <div class="profile-header">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar">
-                <h2 id="username">@user_web</h2>
-                <p>20 Видео | <span id="like-counter">0</span> Лайков</p>
-            </div>
-            
-            <div class="profile-tabs">
-                <button onclick="showGrid('all')" class="active-tab">Мои Видео</button>
-                <button onclick="showGrid('likes')">Лайки</button>
-            </div>
+/* Контейнер приложения */
+.app-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding-bottom: 60px; /* Место для нижней панели */
+}
 
-            <div id="grid-all" class="video-grid active-grid"></div>
-            <div id="grid-likes" class="video-grid"></div>
-        </div>
+/* Экраны */
+.screen {
+    display: none;
+    height: 100%;
+    overflow-y: scroll; /* Скролл внутри экрана */
+    scroll-snap-type: y mandatory; /* Прилипание видео */
+}
 
-    </div>
+.active-screen {
+    display: block;
+}
 
-    <nav class="bottom-bar">
-        <button onclick="switchScreen('feed')"><i class="fas fa-home"></i></button>
-        
-        <div class="add-button-wrapper">
-            <label for="upload-input" class="add-button">+</label>
-        </div>
-        
-        <button onclick="switchScreen('profile')"><i class="fas fa-user"></i></button>
-    </nav>
+/* КАРТОЧКА ВИДЕО */
+.video-item {
+    width: 100%;
+    height: 100%; /* На весь экран */
+    position: relative;
+    scroll-snap-align: start;
+    background: #111;
+    border-bottom: 1px solid #333;
+}
 
-    <input type="file" id="upload-input" accept="video/*" hidden onchange="handleUpload(event)">
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Заполнение без полос */
+    display: block;
+}
 
-    <script src="script.js"></script>
-</body>
-</html>
+/* ИНТЕРФЕЙС ПОВЕРХ ВИДЕО */
+.ui-right {
+    position: absolute;
+    right: 15px;
+    bottom: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    align-items: center;
+    z-index: 10;
+}
+
+.ui-right i {
+    font-size: 32px;
+    text-shadow: 1px 1px 5px #000;
+    cursor: pointer;
+}
+
+.video-desc {
+    position: absolute;
+    bottom: 20px;
+    left: 15px;
+    width: 70%;
+    z-index: 10;
+    text-shadow: 1px 1px 3px #000;
+}
+
+/* КРАСНОЕ СЕРДЦЕ */
+.heart-active { color: #ff0050; }
+
+/* ПРОФИЛЬ */
+.profile-header { padding: 30px; text-align: center; background: #111; }
+.avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid white; margin-bottom: 10px; }
+
+.profile-tabs { display: flex; background: #222; }
+.profile-tabs button {
+    flex: 1; padding: 15px; background: none; border: none; color: #888; font-size: 16px; cursor: pointer;
+}
+.profile-tabs button.active-tab { color: white; border-bottom: 2px solid white; }
+
+.video-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 1px; }
+.video-grid.active-grid { display: grid; }
+.grid-cell { aspect-ratio: 3/4; background: #333; }
+.grid-cell video { width: 100%; height: 100%; object-fit: cover; }
+
+/* НИЖНЯЯ ПАНЕЛЬ (NAVBAR) */
+.bottom-bar {
+    position: fixed; /* ЖЕСТКО ЗАКРЕПЛЕНА */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: #000;
+    border-top: 1px solid #333;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000; /* Всегда сверху */
+}
+
+.bottom-bar button {
+    background: none; border: none; color: #888; font-size: 24px; cursor: pointer;
+}
+
+.add-button {
+    background: white; color: black;
+    width: 45px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; font-weight: bold; font-size: 20px; cursor: pointer;
+}
