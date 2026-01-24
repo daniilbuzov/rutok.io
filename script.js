@@ -1,148 +1,153 @@
-let db;
-let likedList = JSON.parse(localStorage.getItem('t_likes_v4')) || [];
-let currentFile = null;
+let localDB;
+let activeLikes = JSON.parse(localStorage.getItem('likes_v10')) || [];
+let tempUpload = null;
 
-// Стабильные тестовые видео (Sample MP4)
-const stock = [
+// Стабильные CDN ссылки
+const TEST_VIDS = [
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
 ];
 
-const req = indexedDB.open("TikTokDatabase", 1);
-req.onupgradeneeded = e => e.target.result.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
-req.onsuccess = e => { db = e.target.result; init(); };
+// Инициализация БД
+const dbReq = indexedDB.open("TikTokProEngine", 2);
+dbReq.onupgradeneeded = e => {
+    let db = e.target.result;
+    if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
+};
+dbReq.onsuccess = e => { localDB = e.target.result; initApp(); };
 
-function init() {
-    const user = JSON.parse(localStorage.getItem('t_user')) || { name: '@web_hero', pfp: null };
-    document.getElementById('view-name').innerText = user.name;
-    if(user.pfp) document.getElementById('view-pfp').src = user.pfp;
-    loadContent();
+function initApp() {
+    // Загрузка настроек юзера
+    const userData = JSON.parse(localStorage.getItem('app_user')) || { name: '@web_developer', pfp: null };
+    document.getElementById('user-name').innerText = userData.name;
+    if(userData.pfp) document.getElementById('user-pfp').src = userData.pfp;
+    
+    refreshApp();
 }
 
-function loadContent() {
-    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        let userVids = e.target.result || [];
-        let all = [...userVids.reverse()];
+function refreshApp() {
+    localDB.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
+        const myVideos = e.target.result || [];
+        let masterList = [...myVideos.reverse()];
         
-        // Добавляем 20 видео (смесь своих и стабильных тестовых)
+        // Создаем 20 видео
         for(let i=0; i<20; i++) {
-            all.push({ 
-                id: 'test_'+i, 
-                url: stock[i % stock.length], 
-                desc: 'Стабильное видео #' + (i+1), 
-                isTest: true 
-            });
+            masterList.push({ id: 'srv_'+i, url: TEST_VIDS[i % TEST_VIDS.length], isSrv: true, desc: 'Популярное видео ' + (i+1) });
         }
-        render(all);
+        renderContent(masterList);
     };
 }
 
-function render(list) {
-    const feed = document.getElementById('s-feed');
-    const gAll = document.getElementById('g-all');
-    const gLiked = document.getElementById('g-liked');
+function renderContent(list) {
+    const feed = document.getElementById('screen-feed');
+    const gMine = document.getElementById('grid-mine');
+    const gLiked = document.getElementById('grid-liked');
     
-    feed.innerHTML = ''; gAll.innerHTML = ''; gLiked.innerHTML = '';
+    feed.innerHTML = ''; gMine.innerHTML = ''; gLiked.innerHTML = '';
 
-    list.forEach(v => {
-        const src = v.isTest ? v.url : URL.createObjectURL(v.blob);
-        const isL = likedList.includes(v.id);
+    list.forEach(item => {
+        const vUrl = item.isSrv ? item.url : URL.createObjectURL(item.blob);
+        const isLiked = activeLikes.includes(item.id);
 
-        // Создаем карточку ленты
+        // Карточка в ленту
         const card = document.createElement('div');
-        card.className = 'v-card';
+        card.className = 'video-box';
         card.innerHTML = `
-            <video src="${src}" loop playsinline muted preload="metadata"></video>
-            <div class="v-ui"><i class="fas fa-heart ${isL?'liked':''}" onclick="doLike(this,'${v.id}')"></i></div>
-            <div class="v-info"><h3>${v.isTest?'@global_feed':document.getElementById('view-name').innerText}</h3><p>${v.desc||''}</p></div>
+            <video src="${vUrl}" loop playsinline muted preload="auto" webkit-playsinline></video>
+            <div class="ui-side">
+                <i class="fas fa-heart ${isLiked?'heart-on':''}" onclick="hitLike(this,'${item.id}')"></i>
+                <i class="fas fa-comment"></i>
+            </div>
+            <div class="ui-text">
+                <h3>${item.isSrv?'@trending':document.getElementById('user-name').innerText}</h3>
+                <p>${item.desc || '...'}</p>
+            </div>
         `;
 
-        // Клик для Play/Pause и звука
-        card.onclick = (ev) => {
-            if(ev.target.tagName === 'I') return;
-            const vid = card.querySelector('video');
-            vid.muted = false; // Включаем звук при взаимодействии
-            vid.paused ? vid.play().catch(e=>console.log("Play failed")) : vid.pause();
+        // Клик: Звук + Пауза
+        card.onclick = (e) => {
+            if(e.target.tagName === 'I') return;
+            const v = card.querySelector('video');
+            v.muted = false; // Включаем звук
+            v.paused ? v.play() : v.pause();
         };
 
         feed.appendChild(card);
-        obs.observe(card);
+        observer.observe(card);
 
-        // Добавляем в сетку профиля
-        const gridItem = `<div class="g-item"><video src="${src}" muted></video></div>`;
-        gAll.innerHTML += gridItem;
-        if(isL) gLiked.innerHTML += gridItem;
+        // В сетку профиля
+        const gridBox = `<div class="grid-cell"><video src="${vUrl}" muted></video></div>`;
+        if(!item.isSrv) gMine.innerHTML += gridBox;
+        if(isLiked) gLiked.innerHTML += gridBox;
     });
 
-    document.getElementById('count-vids').innerText = list.length;
-    document.getElementById('count-likes').innerText = likedList.length;
+    document.getElementById('vid-count').innerText = list.filter(v => !v.isSrv).length;
+    document.getElementById('like-count').innerText = activeLikes.length;
 }
 
-// Лайки
-function doLike(el, id) {
-    el.classList.toggle('liked');
-    if(el.classList.contains('liked')) {
-        if(!likedList.includes(id)) likedList.push(id);
+// Функции Лайка и Профиля
+function hitLike(el, id) {
+    el.classList.toggle('heart-on');
+    if(el.classList.contains('heart-on')) {
+        if(!activeLikes.includes(id)) activeLikes.push(id);
     } else {
-        likedList = likedList.filter(i => i !== id);
+        activeLikes = activeLikes.filter(val => val !== id);
     }
-    localStorage.setItem('t_likes_v4', JSON.stringify(likedList));
-    // Небольшая задержка перед обновлением профиля для плавности
-    setTimeout(loadContent, 200);
+    localStorage.setItem('likes_v10', JSON.stringify(activeLikes));
+    refreshApp();
 }
 
-// Работа с профилем
-function saveUser() {
-    localStorage.setItem('t_user', JSON.stringify({
-        name: document.getElementById('view-name').innerText,
-        pfp: document.getElementById('view-pfp').src
+function updateUserData() {
+    localStorage.setItem('app_user', JSON.stringify({
+        name: document.getElementById('user-name').innerText,
+        pfp: document.getElementById('user-pfp').src
     }));
 }
 
-function updatePfp(e) {
+function changeAvatar(e) {
     const f = e.target.files[0];
     if(f) {
         const r = new FileReader();
-        r.onload = ev => { document.getElementById('view-pfp').src = ev.target.result; saveUser(); };
+        r.onload = ev => { document.getElementById('user-pfp').src = ev.target.result; updateUserData(); };
         r.readAsDataURL(f);
     }
 }
 
-// Загрузка видео
-function preUpload(e) { 
-    currentFile = e.target.files[0]; 
-    if(currentFile) document.getElementById('modal-desc').style.display = 'flex'; 
+// Загрузка
+function startUpload(e) { 
+    tempUpload = e.target.files[0]; 
+    if(tempUpload) document.getElementById('upload-modal').style.display = 'flex'; 
 }
 
-function finishUpload() {
-    const desc = document.getElementById('inp-desc').value;
-    const tx = db.transaction("videos", "readwrite");
-    tx.objectStore("videos").add({ blob: currentFile, desc: desc, date: Date.now() });
+function saveVideoData() {
+    const d = document.getElementById('desc-inp').value;
+    const tx = localDB.transaction("videos", "readwrite");
+    tx.objectStore("videos").add({ blob: tempUpload, desc: d });
     tx.oncomplete = () => location.reload();
 }
 
 // Навигация
-function show(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('s-' + id).classList.add('active');
+function navigate(to) {
+    document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + to).classList.add('active');
 }
 
-function setGrid(type, el) {
-    document.querySelectorAll('.grid').forEach(g => g.classList.remove('active'));
-    document.querySelectorAll('.p-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('g-' + type).classList.add('active');
-    el.classList.add('active');
+function changeGrid(type, btn) {
+    document.querySelectorAll('.grid-display').forEach(g => g.classList.remove('active-grid'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('grid-' + type).classList.add('active-grid');
+    btn.classList.add('active');
 }
 
-// Автоплей при скролле
-const obs = new IntersectionObserver(ents => {
-    ents.forEach(e => {
-        const v = e.target.querySelector('video');
-        if(e.isIntersecting) {
-            v.play().catch(err => console.log("Браузер заблокировал автоплей"));
+// Автоплей
+const observer = new IntersectionObserver(ents => {
+    ents.forEach(en => {
+        const v = en.target.querySelector('video');
+        if(en.isIntersecting) {
+            v.play().catch(() => console.log("Блокировка автоплея"));
         } else {
             v.pause();
         }
     });
-}, { threshold: 0.7 });
+}, { threshold: 0.8 });
