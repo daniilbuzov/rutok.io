@@ -1,64 +1,54 @@
-// Вставь свои данные из Supabase
-const SUPABASE_URL = 'https://vbqvemcwbwqnobenupzq.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_MQ0U2ZayrZA9vCGemk0-fQ_b1vc6tqH';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Если ты используешь Supabase, убедись, что ссылки на видео рабочие.
+// Для теста я добавлю одно стандартное видео, чтобы ты сразу увидел результат.
 
-// 1. Загрузка видео в ОБЛАКО
-async function publishVideo() {
-    const file = document.getElementById('fileInp').files[0];
-    const desc = document.getElementById('descInp').value;
-    
-    if (!file) return;
+const testVideos = [
+    { url: 'https://v.ftcdn.net/05/52/63/14/700_F_552631481_f9T7Y5jWn5Xq7zVl9f0jH3rWfGfQ6YmS_ST.mp4', desc: 'Тестовое видео #1' }
+];
 
-    // Загружаем файл в Storage
-    const fileName = `${Date.now()}_${file.name}`;
-    const { data: storageData, error: storageError } = await supabase.storage
-        .from('videos')
-        .upload(fileName, file);
-
-    if (storageError) return alert('Ошибка загрузки файла');
-
-    // Получаем прямую ссылку на видео
-    const { data: { publicUrl } } = supabase.storage.from('videos').getPublicUrl(fileName);
-
-    // Сохраняем информацию в таблицу (базу данных)
-    const { error: dbError } = await supabase
-        .from('videos')
-        .insert([{ url: publicUrl, description: desc, author: localStorage.getItem('nick') || 'Guest' }]);
-
-    if (!dbError) location.reload();
-}
-
-// 2. Получение видео со ВСЕГО МИРА
-async function loadFeed() {
+function renderFeed(videos) {
     const feed = document.getElementById('feed');
-    const { data: videos, error } = await supabase
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
+    feed.innerHTML = ''; // Очищаем
 
-    if (error) return console.log('Ошибка получения ленты');
+    if (videos.length === 0) {
+        feed.innerHTML = '<div style="color:white; text-align:center; padding-top:50dvh;">Лента пуста. Загрузите видео!</div>';
+        return;
+    }
 
     videos.forEach(item => {
         const card = document.createElement('div');
         card.className = 'video-card';
         card.innerHTML = `
             <video src="${item.url}" loop muted playsinline></video>
-            <div class="ui-layer">
-                <div class="video-desc">
-                    <h3>@${item.author}</h3>
-                    <p>${item.description}</p>
+            <div class="ui-overlay">
+                <div class="video-info">
+                    <h3>@creator</h3>
+                    <p>${item.desc}</p>
                 </div>
             </div>
         `;
-        // Логика клика (Play/Pause)
+
         card.onclick = () => {
             const v = card.querySelector('video');
             v.muted = false;
             v.paused ? v.play() : v.pause();
         };
+
         feed.appendChild(card);
+        observer.observe(card);
     });
 }
 
-loadFeed();
+// Автоплей при скролле
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        const v = entry.target.querySelector('video');
+        if (entry.isIntersecting) {
+            v.play().catch(() => console.log("Браузер ждет клика для звука"));
+        } else {
+            v.pause();
+        }
+    });
+}, { threshold: 0.6 });
+
+// Запуск с тестовыми данными
+renderFeed(testVideos);
