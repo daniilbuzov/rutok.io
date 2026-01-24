@@ -1,96 +1,110 @@
+const testUrl = "https://v.ftcdn.net/05/52/63/14/700_F_552631481_f9T7Y5jWn5Xq7zVl9f0jH3rWfGfQ6YmS_ST.mp4";
 let db;
-let likedVideos = JSON.parse(localStorage.getItem('userLikes')) || [];
-const stockUrl = "https://v.ftcdn.net/05/52/63/14/700_F_552631481_f9T7Y5jWn5Xq7zVl9f0jH3rWfGfQ6YmS_ST.mp4";
+let likedVids = JSON.parse(localStorage.getItem('savedLikes')) || [];
 
-// 1. Работа с базой данных
-const dbReq = indexedDB.open("TikTokMinimal", 1);
-dbReq.onupgradeneeded = e => e.target.result.createObjectStore("vids", { keyPath: "id", autoIncrement: true });
-dbReq.onsuccess = e => { db = e.target.result; initApp(); };
+// Инициализация базы данных
+const req = indexedDB.open("TikTokDB_V3", 1);
+req.onupgradeneeded = e => e.target.result.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
+req.onsuccess = e => { db = e.target.result; loadApp(); };
 
-function initApp() {
-    db.transaction("vids").objectStore("vids").getAll().onsuccess = e => {
-        let userVids = e.target.result || [];
-        let allVids = [...userVids];
-
-        // Генерируем 20 видео (Свои + Тестовые)
-        for (let i = 0; i < 20; i++) {
-            allVids.push({
-                id: 'test_' + i,
-                url: stockUrl,
-                desc: 'Классное видео #' + (i + 1),
-                isTest: true
-            });
+function loadApp() {
+    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
+        const userVideos = e.target.result || [];
+        let combined = [...userVideos];
+        
+        // Создаем 20 тестовых видео
+        for(let i=0; i<20; i++) {
+            combined.push({ id: 'test_'+i, url: testUrl, isTest: true, desc: 'Видео #' + (i+1) });
         }
-        renderFeed(allVids);
-        renderProfile(allVids);
+        
+        renderUI(combined);
     };
 }
 
-// 2. Рендеринг ленты
-function renderFeed(vids) {
-    const feed = document.getElementById('feed-section');
-    feed.innerHTML = '';
-
-    vids.forEach(vid => {
+function renderUI(list) {
+    const feed = document.getElementById('screen-feed');
+    const gridAll = document.getElementById('grid-all');
+    const gridLiked = document.getElementById('grid-liked');
+    
+    feed.innerHTML = ''; gridAll.innerHTML = ''; gridLiked.innerHTML = '';
+    
+    list.forEach(vid => {
         const src = vid.isTest ? vid.url : URL.createObjectURL(vid.blob);
+        const isLiked = likedVids.includes(vid.id);
+
+        // 1. В Ленту
         const card = document.createElement('div');
-        card.className = 'video-card';
+        card.className = 'v-card';
         card.innerHTML = `
             <video src="${src}" loop playsinline muted></video>
-            <div class="video-sidebar">
-                <i class="fas fa-heart ${likedVideos.includes(vid.id) ? 'heart-red' : ''}" onclick="likeVid(this, '${vid.id}')"></i>
-                <i class="fas fa-comment"></i>
+            <div class="side-ui">
+                <i class="fas fa-heart ${isLiked ? 'is-active' : ''}" onclick="toggleLike('${vid.id}', this)"></i>
+                <i class="fas fa-share"></i>
             </div>
         `;
-
+        
+        let lastTap = 0;
         card.onclick = (e) => {
-            if (e.target.tagName === 'I') return;
-            const v = card.querySelector('video');
-            v.muted = false;
-            v.paused ? v.play() : v.pause();
+            if(e.target.tagName === 'I') return;
+            if(Date.now() - lastTap < 300) { heartEffect(e); toggleLike(vid.id, card.querySelector('.fa-heart'), true); }
+            else { const v = card.querySelector('video'); v.muted = false; v.paused ? v.play() : v.pause(); }
+            lastTap = Date.now();
         };
-
         feed.appendChild(card);
         observer.observe(card);
+
+        // 2. В Профиль (Все)
+        gridAll.innerHTML += `<div class="grid-item"><video src="${src}" muted></video></div>`;
+        
+        // 3. В Профиль (Лайки)
+        if(isLiked) gridLiked.innerHTML += `<div class="grid-item"><video src="${src}" muted></video></div>`;
     });
+    
+    document.getElementById('likes-count').innerText = likedVids.length;
 }
 
-// 3. Лайки и профиль
-function likeVid(el, id) {
-    el.classList.toggle('heart-red');
-    if (el.classList.contains('heart-red')) {
-        if (!likedVideos.includes(id)) likedVideos.push(id);
+function toggleLike(id, el, force = false) {
+    if(force) el.classList.add('is-active'); else el.classList.toggle('is-active');
+    
+    if(el.classList.contains('is-active')) {
+        if(!likedVids.includes(id)) likedVids.push(id);
     } else {
-        likedVideos = likedVideos.filter(i => i !== id);
+        likedVids = likedVids.filter(i => i !== id);
     }
-    localStorage.setItem('userLikes', JSON.stringify(likedVideos));
-    document.getElementById('like-total').innerText = likedVideos.length;
+    localStorage.setItem('savedLikes', JSON.stringify(likedVids));
+    // Перерисовываем профиль для обновления вкладок
+    loadApp();
+}
+
+function heartEffect(e) {
+    const h = document.createElement('i');
+    h.className = 'fas fa-heart h-pop';
+    h.style.left = e.clientX + 'px'; h.style.top = e.clientY + 'px';
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 700);
 }
 
 function showScreen(id) {
-    document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id + '-section').classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
 }
 
-function setGrid(type) {
+function switchGrid(type, el) {
     document.querySelectorAll('.video-grid').forEach(g => g.classList.remove('active-grid'));
-    document.querySelectorAll('.p-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     document.getElementById('grid-' + type).classList.add('active-grid');
+    el.classList.add('active');
 }
 
-// Автоплей при скролле
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-        const v = entry.target.querySelector('video');
-        entry.isIntersecting ? v.play() : v.pause();
-    });
-}, { threshold: 0.6 });
-
-function handleNewVideo(e) {
+function handleUpload(e) {
     const file = e.target.files[0];
-    if (file) {
-        const tx = db.transaction("vids", "readwrite");
-        tx.objectStore("vids").add({ blob: file });
+    if(file) {
+        const tx = db.transaction("videos", "readwrite");
+        tx.objectStore("videos").add({ blob: file });
         tx.oncomplete = () => location.reload();
     }
 }
+
+const observer = new IntersectionObserver(ents => {
+    ents.forEach(en => { const v = en.target.querySelector('video'); en.isIntersecting ? v.play() : v.pause(); });
+}, { threshold: 0.7 });
