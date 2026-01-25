@@ -3,66 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok OS - No Hosting Edition</title>
+    <title>TikTok Web Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-wrapper">
-        <aside class="sidebar-pc">
+    <div class="app-container">
+        <aside class="sidebar">
             <div class="logo">TikTok<span>Clone</span></div>
-            <nav class="pc-nav">
-                <div class="pc-nav-item active" onclick="show('feed')"><i class="fas fa-home"></i> Рекомендуем</div>
-                <div class="pc-nav-item" onclick="show('profile')"><i class="fas fa-user"></i> Профиль</div>
-            </nav>
-            <div class="pc-footer">© 2026 TikTok Local</div>
+            <div class="side-nav">
+                <div class="nav-item active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Для вас</div>
+                <div class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
+            </div>
         </aside>
 
-        <main class="content-area">
+        <main class="main-content">
             <section id="s-feed" class="screen active"></section>
-            
+
             <section id="s-profile" class="screen">
-                <div class="profile-top">
-                    <div class="pfp-box" onclick="document.getElementById('pfp-inp').click()">
-                        <img id="user-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Bot1">
+                <div class="profile-header">
+                    <div class="avatar-wrap" onclick="document.getElementById('pfp-input').click()">
+                        <img id="my-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky">
                     </div>
-                    <h2 id="user-name" contenteditable="true" onblur="saveProfile()">@user_master</h2>
-                    <div class="stats"><span><b id="v-count">0</b> видео</span><span><b id="l-count">0</b> лайков</span></div>
+                    <h2 id="my-name" contenteditable="true" onblur="saveProfile()">@user_name</h2>
+                    <div class="p-stats">
+                        <span><b id="c-vids">0</b> видео</span>
+                        <span><b id="c-likes">0</b> лайков</span>
+                    </div>
                 </div>
-                <div class="profile-tabs">
-                    <div class="tab active" onclick="setGrid('my', this)">Видео</div>
-                    <div class="tab" onclick="setGrid('liked', this)">Лайки</div>
+                <div class="tabs">
+                    <div class="tab active" onclick="switchGrid('my', this)">Видео</div>
+                    <div class="tab" onclick="switchGrid('liked', this)">Лайки</div>
                 </div>
-                <div id="g-my" class="grid active"></div>
-                <div id="g-liked" class="grid"></div>
+                <div id="g-my" class="video-grid active-grid"></div>
+                <div id="g-liked" class="video-grid"></div>
             </section>
         </main>
 
         <nav class="mobile-nav">
-            <div onclick="show('feed')"><i class="fas fa-home"></i></div>
-            <label for="vid-inp" class="upload-btn">+</label>
-            <div onclick="show('profile')"><i class="fas fa-user"></i></div>
+            <div onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
+            <label for="vid-input" class="upload-btn">+</label>
+            <div onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
         </nav>
 
-        <div id="viewer" class="video-viewer">
-            <div class="close-viewer" onclick="closeViewer()">×</div>
-            <div class="viewer-content">
-                <div class="video-side">
-                    <video id="view-player" loop playsinline></video>
+        <div id="video-viewer" class="viewer-modal">
+            <div class="viewer-body">
+                <div class="close-btn" onclick="closeViewer()">×</div>
+                <div class="viewer-player">
+                    <video id="viewer-video" loop playsinline></video>
                 </div>
-                <div class="comment-side">
-                    <div class="comm-header">Комментарии</div>
-                    <div id="comm-list" class="comm-list"></div>
-                    <div class="comm-input">
-                        <input type="text" id="new-comm" placeholder="Напишите комментарий...">
-                        <button onclick="postComment()"><i class="fas fa-paper-plane"></i></button>
+                <div class="viewer-side">
+                    <div class="author-info">
+                        <b id="viewer-author">@author</b>
+                        <p id="viewer-desc">Описание видео...</p>
+                    </div>
+                    <div id="comment-list" class="comments-box"></div>
+                    <div class="input-box">
+                        <input type="text" id="comm-text" placeholder="Оставьте комментарий...">
+                        <button onclick="addComment()"><i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <input type="file" id="vid-inp" accept="video/*" hidden onchange="uploadVideo(event)">
-        <input type="file" id="pfp-inp" accept="image/*" hidden onchange="updatePfp(event)">
+        <input type="file" id="vid-input" accept="video/*" hidden onchange="handleUpload(event)">
+        <input type="file" id="pfp-input" accept="image/*" hidden onchange="handlePfp(event)">
     </div>
     <script src="script.js"></script>
 </body>
