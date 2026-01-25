@@ -1,79 +1,68 @@
 let db;
-const testVids = [
+const bots = [
     "https://v.ftcdn.net/04/18/39/39/700_F_418393931_mI7N6L9mN8R8y5Zl4E7H8v9B2F5G6.mp4",
-    "https://v.ftcdn.net/02/11/44/55/700_F_211445566_fGhJ1K2L3M4N5P6O7I8U.mp4"
+    "https://v.ftcdn.net/02/11/44/55/700_F_211445566_fGhJ1K2L3M4N5P6O7I8U.mp4",
+    "https://v.ftcdn.net/05/52/63/14/700_F_552631481_f9T7Y5jWn5Xq7zVl9f0jH3rWfGfQ6YmS_ST.mp4"
 ];
 
-const req = indexedDB.open("TikTokV4", 1);
-req.onupgradeneeded = e => e.target.result.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
-req.onsuccess = e => { db = e.target.result; renderFeed(); };
+const req = indexedDB.open("TikTokFinal", 1);
+req.onupgradeneeded = e => e.target.result.createObjectStore("vids", { keyPath: "id", autoIncrement: true });
+req.onsuccess = e => { db = e.target.result; loadFeed(); };
 
-function renderFeed() {
+function loadFeed() {
     const feed = document.getElementById('s-feed');
     feed.innerHTML = '';
+    bots.forEach(src => addVideo(src, feed));
     
-    // Сначала тестовые
-    testVids.forEach(src => addCard(src, feed));
-    
-    // Потом твои
-    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        e.target.result.forEach(v => {
-            const url = URL.createObjectURL(v.blob);
-            addCard(url, feed);
-        });
+    db.transaction("vids").objectStore("vids").getAll().onsuccess = e => {
+        e.target.result.forEach(v => addVideo(URL.createObjectURL(v.blob), feed));
     };
 }
 
-function addCard(src, parent) {
+function addVideo(src, parent) {
     const card = document.createElement('div');
     card.className = 'v-card';
     card.innerHTML = `<video src="${src}" loop playsinline></video>
-                      <div class="side-ui"><i class="fas fa-heart"></i><i class="fas fa-comment"></i></div>`;
+                      <div class="v-ui"><i class="fas fa-heart" onclick="this.style.color='#fe2c55'"></i><i class="fas fa-comment"></i></div>`;
     card.onclick = () => { const v = card.querySelector('video'); v.paused ? v.play() : v.pause(); };
     parent.appendChild(card);
     obs.observe(card);
 }
 
-function showScreen(id) {
+function show(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('s-' + id).classList.add('active');
-    if (id === 'profile') renderProfile();
+    if (id === 'profile') loadProfile();
 }
 
-function handleUpload(e) {
+function upload(e) {
     const file = e.target.files[0];
     if (file) {
-        const tx = db.transaction("videos", "readwrite");
-        tx.objectStore("videos").add({ blob: file });
-        tx.oncomplete = () => { renderFeed(); showScreen('profile'); };
+        db.transaction("vids", "readwrite").objectStore("vids").add({ blob: file });
+        setTimeout(() => location.reload(), 500);
     }
 }
 
-// НОВАЯ ФУНКЦИЯ: РЕНДЕР ПРОФИЛЯ С УДАЛЕНИЕМ
-function renderProfile() {
+function loadProfile() {
     const grid = document.getElementById('p-grid');
     grid.innerHTML = '';
-    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        const vids = e.target.result;
-        document.getElementById('v-count').innerText = vids.length;
-        vids.forEach(v => {
-            const item = document.createElement('div');
-            item.className = 'grid-item';
-            item.innerHTML = `
-                <video src="${URL.createObjectURL(v.blob)}#t=0.5"></video>
-                <button class="del-btn" onclick="deleteVideo(${v.id})">Удалить</button>
-            `;
-            grid.appendChild(item);
+    db.transaction("vids").objectStore("vids").getAll().onsuccess = e => {
+        const list = e.target.result;
+        document.getElementById('p-v-count').innerText = list.length;
+        list.forEach(v => {
+            const div = document.createElement('div');
+            div.className = 'g-item';
+            div.innerHTML = `<video src="${URL.createObjectURL(v.blob)}#t=0.5"></video>
+                             <button class="del" onclick="del(${v.id})">Удалить</button>`;
+            grid.appendChild(div);
         });
     };
 }
 
-// ФУНКЦИЯ УДАЛЕНИЯ
-function deleteVideo(id) {
-    if (confirm("Удалить это видео?")) {
-        const tx = db.transaction("videos", "readwrite");
-        tx.objectStore("videos").delete(id);
-        tx.oncomplete = () => renderProfile();
+function del(id) {
+    if(confirm("Удалить видео?")) {
+        db.transaction("vids", "readwrite").objectStore("vids").delete(id);
+        setTimeout(() => loadProfile(), 300);
     }
 }
 
