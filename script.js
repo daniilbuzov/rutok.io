@@ -1,78 +1,88 @@
 let db;
-let likes = JSON.parse(localStorage.getItem('likes')) || [];
+// Рабочие ссылки на тестовые видео
+const testVideos = [
+    "https://v.ftcdn.net/04/18/39/39/700_F_418393931_mI7N6L9mN8R8y5Zl4E7H8v9B2F5G6.mp4",
+    "https://v.ftcdn.net/02/11/44/55/700_F_211445566_fGhJ1K2L3M4N5P6O7I8U.mp4",
+    "https://v.ftcdn.net/05/52/63/14/700_F_552631481_f9T7Y5jWn5Xq7zVl9f0jH3rWfGfQ6YmS_ST.mp4"
+];
 
-const initDB = indexedDB.open("TikTokUIFix", 1);
-initDB.onupgradeneeded = e => e.target.result.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
-initDB.onsuccess = e => { db = e.target.result; loadApp(); };
+// Инициализация базы данных IndexedDB
+const request = indexedDB.open("TikTokFinalDB", 1);
+request.onupgradeneeded = e => e.target.result.createObjectStore("my_videos", { autoIncrement: true });
+request.onsuccess = e => { db = e.target.result; init(); };
 
-function loadApp() {
-    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        const vids = e.target.result.reverse();
-        render(vids);
+function init() {
+    renderFeed();
+}
+
+function renderFeed() {
+    const feed = document.getElementById('s-feed');
+    feed.innerHTML = '';
+    
+    // 1. Сначала тестовые видео
+    testVideos.forEach(src => createCard(src, feed));
+    
+    // 2. Затем видео пользователя
+    db.transaction("my_videos").objectStore("my_videos").getAll().onsuccess = e => {
+        e.target.result.forEach(file => {
+            const url = URL.createObjectURL(file);
+            createCard(url, feed);
+        });
     };
 }
 
-// Логика кнопки +
-function handleMobileAdd() {
-    if (window.innerWidth < 900) {
-        document.getElementById('mob-upload-menu').style.display = 'flex';
-    }
+function createCard(src, parent) {
+    const card = document.createElement('div');
+    card.className = 'v-card';
+    card.innerHTML = `
+        <video src="${src}" loop playsinline></video>
+        <div class="v-overlay">
+            <i class="fas fa-heart" onclick="this.style.color='#fe2c55'"></i>
+            <i class="fas fa-comment"></i>
+        </div>
+        <div class="v-info"><b>@video_author</b><p>Cool video description!</p></div>
+    `;
+    card.onclick = () => {
+        const v = card.querySelector('video');
+        v.paused ? v.play() : v.pause();
+    };
+    parent.appendChild(card);
+    observer.observe(card);
 }
 
-function uploadFile(e) {
+function goTo(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('s-' + screenId).classList.add('active');
+    if (screenId === 'profile') refreshProfile();
+}
+
+function handleNewVideo(e) {
     const file = e.target.files[0];
     if (file) {
-        const tx = db.transaction("videos", "readwrite");
-        tx.objectStore("videos").add({ blob: file, timestamp: Date.now() });
-        tx.oncomplete = () => location.reload();
+        const tx = db.transaction("my_videos", "readwrite");
+        tx.objectStore("my_videos").add(file);
+        tx.oncomplete = () => { renderFeed(); goTo('profile'); };
     }
 }
 
-function render(list) {
-    const feed = document.getElementById('s-feed');
-    const grid = document.getElementById('grid-my');
-    feed.innerHTML = ''; grid.innerHTML = '';
-
-    list.forEach(v => {
-        const url = URL.createObjectURL(v.blob);
-        
-        // Лента
-        const card = document.createElement('div');
-        card.className = 'video-card';
-        card.innerHTML = `<video src="${url}" loop playsinline muted></video>`;
-        
-        // Клик для звука/паузы
-        card.onclick = () => {
-            const vid = card.querySelector('video');
-            vid.muted = false;
-            vid.paused ? vid.play() : vid.pause();
-        };
-
-        feed.appendChild(card);
-        observer.observe(card);
-
-        // Сетка в профиле
-        grid.innerHTML += `<div class="g-item"><video src="${url}#t=0.5" muted></video></div>`;
-    });
-    
-    document.getElementById('v-count').innerText = list.length;
+function refreshProfile() {
+    const grid = document.getElementById('p-grid');
+    grid.innerHTML = '';
+    db.transaction("my_videos").objectStore("my_videos").getAll().onsuccess = e => {
+        const vids = e.target.result;
+        document.getElementById('p-count').innerText = vids.length;
+        vids.forEach(file => {
+            const url = URL.createObjectURL(file);
+            grid.innerHTML += `<div class="grid-item"><video src="${url}#t=0.5"></video></div>`;
+        });
+    };
 }
 
-// Переключение экранов
-function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('s-' + id).classList.add('active');
-    
-    // Обновляем активную иконку на ПК
-    document.querySelectorAll('.pc-item').forEach(i => i.classList.remove('active'));
-    // (тут можно добавить логику подстветки нужного пункта в сайдбаре)
-}
-
-// Автоплей при скролле
-const observer = new IntersectionObserver(ents => {
-    ents.forEach(e => {
-        const v = e.target.querySelector('video');
-        if (e.isIntersecting) v.play().catch(() => {});
+// Автозапуск видео при попадании в экран
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        const v = entry.target.querySelector('video');
+        if (entry.isIntersecting) v.play().catch(() => {});
         else v.pause();
     });
-}, { threshold: 0.7 });
+}, { threshold: 0.8 });
