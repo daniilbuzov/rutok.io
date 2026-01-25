@@ -1,155 +1,165 @@
-let localDB;
-let activeLikes = JSON.parse(localStorage.getItem('likes_v10')) || [];
-let tempUpload = null;
+let db;
+let currentVideoId = null;
+let likes = JSON.parse(localStorage.getItem('my_likes')) || [];
+let comments = JSON.parse(localStorage.getItem('my_comments')) || {}; // {vid_id: [comm1, comm2]}
 
-// Стабильные CDN ссылки
-const TEST_VIDS = [
-    "https://daniilbuzov.github.io/rutouurtrt/",
-    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+const botNames = ['@mister_joke', '@sigma_boy', '@elena_sunny', '@tech_guru', '@cat_lover'];
+const botPhrases = ['Ого, круто!', 'Лайк однозначно 🔥', 'Как ты это сделал?', 'Просто топ!', 'Улыбнуло))'];
+const stockVideos = [
+    "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
     "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
 ];
 
-// Инициализация БД
-const dbReq = indexedDB.open("TikTokProEngine", 2);
-dbReq.onupgradeneeded = e => {
-    let db = e.target.result;
-    if (!db.objectStoreNames.contains("videos")) db.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
+const req = indexedDB.open("TikTokLocal", 3);
+req.onupgradeneeded = e => {
+    let d = e.target.result;
+    if(!d.objectStoreNames.contains("videos")) d.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
 };
-dbReq.onsuccess = e => { localDB = e.target.result; initApp(); };
+req.onsuccess = e => { db = e.target.result; init(); };
 
-function initApp() {
-    // Загрузка настроек юзера
-    const userData = JSON.parse(localStorage.getItem('app_user')) || { name: '@web_developer', pfp: null };
-    document.getElementById('user-name').innerText = userData.name;
-    if(userData.pfp) document.getElementById('user-pfp').src = userData.pfp;
+function init() {
+    // 1. Создаем ботов, если лента пуста
+    db.transaction("videos", "readwrite").objectStore("videos").getAll().onsuccess = e => {
+        if(e.target.result.length < 5) createBots();
+        else loadApp();
+    };
     
-    refreshApp();
+    // Загрузка профиля
+    const user = JSON.parse(localStorage.getItem('my_user')) || { name: '@local_user', pfp: null };
+    document.getElementById('user-name').innerText = user.name;
 }
 
-function refreshApp() {
-    localDB.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        const myVideos = e.target.result || [];
-        let masterList = [...myVideos.reverse()];
-        
-        // Создаем 3 видео
-        for(let i=0; i<3; i++) {
-            masterList.push({ id: 'srv_'+i, url: TEST_VIDS[i % TEST_VIDS.length], isSrv: true, desc: 'тестовое видио ' + (i+1) });
-        }
-        renderContent(masterList);
+function createBots() {
+    const tx = db.transaction("videos", "readwrite").objectStore("videos");
+    for(let i=0; i<10; i++) {
+        tx.add({
+            url: stockVideos[i % stockVideos.length],
+            user: botNames[Math.floor(Math.random()*botNames.length)],
+            desc: "Бот-контент #" + i,
+            isBot: true,
+            id: 'bot_' + i
+        });
+    }
+    tx.oncomplete = () => loadApp();
+}
+
+function loadApp() {
+    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
+        const all = e.target.result;
+        renderFeed(all);
+        renderProfile(all);
     };
 }
 
-function renderContent(list) {
-    const feed = document.getElementById('screen-feed');
-    const gMine = document.getElementById('grid-mine');
-    const gLiked = document.getElementById('grid-liked');
-    
-    feed.innerHTML = ''; gMine.innerHTML = ''; gLiked.innerHTML = '';
-
-    list.forEach(item => {
-        const vUrl = item.isSrv ? item.url : URL.createObjectURL(item.blob);
-        const isLiked = activeLikes.includes(item.id);
-
-        // Карточка в ленту
-        const card = document.createElement('div');
-        card.className = 'video-box';
-        card.innerHTML = `
-            <video src="${vUrl}" loop playsinline muted preload="auto" webkit-playsinline></video>
-            <div class="ui-side">
-                <i class="fas fa-heart ${isLiked?'heart-on':''}" onclick="hitLike(this,'${item.id}')"></i>
-                <i class="fas fa-comment"></i>
-            </div>
-            <div class="ui-text">
-                <h3>${item.isSrv?'@trending':document.getElementById('user-name').innerText}</h3>
-                <p>${item.desc || '...'}</p>
+// Рендер ленты
+function renderFeed(list) {
+    const feed = document.getElementById('s-feed');
+    feed.innerHTML = '';
+    list.sort(() => Math.random() - 0.5).forEach(vid => {
+        const src = vid.isBot ? vid.url : URL.createObjectURL(vid.blob);
+        const div = document.createElement('div');
+        div.className = 'v-card';
+        div.innerHTML = `
+            <video src="${src}" loop playsinline muted></video>
+            <div class="v-ui">
+                <i class="fas fa-heart ${likes.includes(vid.id)?'liked':''}" onclick="toggleLike('${vid.id}', this)"></i>
+                <i class="fas fa-comment" onclick="openViewer('${vid.id}', '${src}')"></i>
             </div>
         `;
-
-        // Клик: Звук + Пауза
-        card.onclick = (e) => {
-            if(e.target.tagName === 'I') return;
-            const v = card.querySelector('video');
-            v.muted = false; // Включаем звук
-            v.paused ? v.play() : v.pause();
-        };
-
-        feed.appendChild(card);
-        observer.observe(card);
-
-        // В сетку профиля
-        const gridBox = `<div class="grid-cell"><video src="${vUrl}" muted></video></div>`;
-        if(!item.isSrv) gMine.innerHTML += gridBox;
-        if(isLiked) gLiked.innerHTML += gridBox;
+        div.onclick = (e) => { if(e.target.tagName !== 'I') { const v = div.querySelector('video'); v.muted=false; v.paused?v.play():v.pause(); } };
+        feed.appendChild(div);
+        obs.observe(div);
     });
-
-    document.getElementById('vid-count').innerText = list.filter(v => !v.isSrv).length;
-    document.getElementById('like-count').innerText = activeLikes.length;
 }
 
-// Функции Лайка и Профиля
-function hitLike(el, id) {
-    el.classList.toggle('heart-on');
-    if(el.classList.contains('heart-on')) {
-        if(!activeLikes.includes(id)) activeLikes.push(id);
-    } else {
-        activeLikes = activeLikes.filter(val => val !== id);
+// Лайки и Комменты
+function toggleLike(id, el) {
+    el.classList.toggle('liked');
+    if(el.classList.contains('liked')) likes.push(id);
+    else likes = likes.filter(l => l !== id);
+    localStorage.setItem('my_likes', JSON.stringify(likes));
+    loadApp();
+}
+
+function openViewer(id, src) {
+    currentVideoId = id;
+    document.getElementById('viewer').style.display = 'block';
+    const player = document.getElementById('view-player');
+    player.src = src;
+    player.play();
+    renderComments();
+}
+
+function renderComments() {
+    const list = document.getElementById('comm-list');
+    list.innerHTML = '';
+    const comms = comments[currentVideoId] || [];
+    
+    // Добавляем случайные комменты ботов, если пусто
+    if(comms.length === 0) {
+        for(let i=0; i<3; i++) comms.push({user: botNames[i], text: botPhrases[i]});
     }
-    localStorage.setItem('likes_v10', JSON.stringify(activeLikes));
-    refreshApp();
+
+    comms.forEach(c => {
+        list.innerHTML += `<div class="comm-item"><b>${c.user}</b>: ${c.text}</div>`;
+    });
 }
 
-function updateUserData() {
-    localStorage.setItem('app_user', JSON.stringify({
-        name: document.getElementById('user-name').innerText,
-        pfp: document.getElementById('user-pfp').src
-    }));
+function postComment() {
+    const inp = document.getElementById('new-comm');
+    if(!inp.value) return;
+    if(!comments[currentVideoId]) comments[currentVideoId] = [];
+    comments[currentVideoId].push({ user: 'Вы', text: inp.value });
+    localStorage.setItem('my_comments', JSON.stringify(comments));
+    inp.value = '';
+    renderComments();
 }
 
-function changeAvatar(e) {
-    const f = e.target.files[0];
-    if(f) {
-        const r = new FileReader();
-        r.onload = ev => { document.getElementById('user-pfp').src = ev.target.result; updateUserData(); };
-        r.readAsDataURL(f);
+function closeViewer() {
+    document.getElementById('viewer').style.display = 'none';
+    document.getElementById('view-player').pause();
+}
+
+// Профиль: клик на видео
+function renderProfile(list) {
+    const gMy = document.getElementById('g-my');
+    const gLiked = document.getElementById('g-liked');
+    gMy.innerHTML = ''; gLiked.innerHTML = '';
+    
+    list.forEach(v => {
+        const src = v.isBot ? v.url : URL.createObjectURL(v.blob);
+        const item = `<div class="g-item" onclick="openViewer('${v.id}', '${src}')"><video src="${src}#t=0.1" muted></video></div>`;
+        if(!v.isBot) gMy.innerHTML += item;
+        if(likes.includes(v.id)) gLiked.innerHTML += item;
+    });
+    document.getElementById('v-count').innerText = list.filter(v=>!v.isBot).length;
+    document.getElementById('l-count').innerText = likes.length;
+}
+
+// Загрузка своего видео
+function uploadVideo(e) {
+    const file = e.target.files[0];
+    if(file) {
+        const tx = db.transaction("videos", "readwrite");
+        tx.objectStore("videos").add({ blob: file, user: 'Вы', desc: 'Мое видео', isBot: false });
+        tx.oncomplete = () => location.reload();
     }
-}
-
-// Загрузка
-function startUpload(e) { 
-    tempUpload = e.target.files[0]; 
-    if(tempUpload) document.getElementById('upload-modal').style.display = 'flex'; 
-}
-
-function saveVideoData() {
-    const d = document.getElementById('desc-inp').value;
-    const tx = localDB.transaction("videos", "readwrite");
-    tx.objectStore("videos").add({ blob: tempUpload, desc: d });
-    tx.oncomplete = () => location.reload();
 }
 
 // Навигация
-function navigate(to) {
-    document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + to).classList.add('active');
+function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('s-'+id).classList.add('active');
+    document.querySelectorAll('.pc-nav-item').forEach(i => i.classList.remove('active'));
 }
 
-function changeGrid(type, btn) {
-    document.querySelectorAll('.grid-display').forEach(g => g.classList.remove('active-grid'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('grid-' + type).classList.add('active-grid');
-    btn.classList.add('active');
+function setGrid(type, el) {
+    document.querySelectorAll('.grid').forEach(g => g.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('g-'+type).classList.add('active');
+    el.classList.add('active');
 }
 
-// Автоплей
-const observer = new IntersectionObserver(ents => {
-    ents.forEach(en => {
-        const v = en.target.querySelector('video');
-        if(en.isIntersecting) {
-            v.play().catch(() => console.log("Блокировка автоплея"));
-        } else {
-            v.pause();
-        }
-    });
-}, { threshold: 0.8 });
-
-
+const obs = new IntersectionObserver(es => {
+    es.forEach(e => { const v = e.target.querySelector('video'); e.isIntersecting ? v.play() : v.pause(); });
+}, { threshold: 0.7 });
