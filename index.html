@@ -3,40 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok World Fix</title>
+    <title>TikTok Fix 2026</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <aside class="pc-nav">
-            <div class="logo">TikTok<span>Clone</span></div>
-            <div class="nav-item active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Главная</div>
-            <div class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
-            <button class="upload-pc" onclick="document.getElementById('file-input').click()">Загрузить</button>
-        </aside>
+    <div class="app">
+        <main id="s-feed" class="screen active"></main>
 
-        <main class="viewer">
-            <section id="s-feed" class="screen active"></section>
-            
-            <section id="s-profile" class="screen">
-                <div class="p-header">
-                    <img id="p-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=user">
-                    <h2 id="p-user">@мой_аккаунт</h2>
+        <section id="s-profile" class="screen">
+            <div class="p-header">
+                <div class="avatar"></div>
+                <h2>@my_profile</h2>
+                <div class="p-stats">
+                    <span><b>0</b> Подписки</span>
+                    <span><b id="p-likes">0</b> Лайки</span>
                 </div>
-                <div class="p-grid" id="p-grid"></div>
-            </section>
-        </main>
+            </div>
+            <div class="p-grid" id="p-grid"></div>
+        </section>
 
-        <nav class="mobile-nav">
-            <div onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
-            <div class="plus-btn" onclick="document.getElementById('file-input').click()">+</div>
-            <div onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
+        <nav class="navbar">
+            <div class="nav-item" onclick="showScreen('feed')"><i class="fas fa-home"></i><span>Главная</span></div>
+            <div class="nav-item plus" onclick="document.getElementById('file-in').click()">+</div>
+            <div class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i><span>Профиль</span></div>
         </nav>
     </div>
 
-    <input type="file" id="file-input" accept="video/*" hidden onchange="upload(event)">
-
+    <input type="file" id="file-in" accept="video/*" hidden onchange="handleUpload(event)">
     <script src="script.js"></script>
 </body>
 </html>
