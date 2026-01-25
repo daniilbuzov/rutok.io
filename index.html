@@ -3,72 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Pro Edition</title>
+    <title>TikTok Perfect UI</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
-        <aside class="pc-sidebar">
-            <div class="logo">TikTok<span>Clone</span></div>
-            <nav class="side-menu">
-                <div class="menu-item active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Главная</div>
-                <div class="menu-item" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
-                <button class="pc-create-btn" onclick="document.getElementById('vid-input').click()">
-                    <i class="fas fa-plus"></i> Создать
-                </button>
+        <aside class="sidebar-pc">
+            <div class="logo">TikTok<span>PRO</span></div>
+            <nav class="pc-nav">
+                <div class="pc-item active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Главная</div>
+                <div class="pc-item" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
+                <button class="pc-add-btn" onclick="document.getElementById('vid-input').click()">+ Создать</button>
             </nav>
         </aside>
 
-        <main class="content-wrapper">
+        <main class="main-view">
             <section id="s-feed" class="screen active"></section>
-
+            
             <section id="s-profile" class="screen">
-                <div class="profile-info">
-                    <div class="pfp-main" onclick="document.getElementById('pfp-input').click()">
-                        <img id="user-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=77">
+                <div class="profile-layout">
+                    <div class="user-card">
+                        <div class="avatar" onclick="document.getElementById('pfp-input').click()">
+                            <img id="my-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=12">
+                        </div>
+                        <h2 id="my-name" contenteditable="true">@username</h2>
+                        <div class="user-stats">
+                            <span><b id="v-count">0</b> видео</span>
+                            <span><b id="l-count">0</b> лайков</span>
+                        </div>
                     </div>
-                    <h2 id="user-name" contenteditable="true">@username</h2>
-                    <div class="stats">
-                        <span><b id="v-count">0</b> видео</span>
-                        <span><b id="l-count">0</b> лайков</span>
+                    <div class="grid-nav">
+                        <div class="g-tab active" onclick="setGrid('my', this)">Видео</div>
+                        <div class="g-tab" onclick="setGrid('liked', this)">Лайки</div>
                     </div>
+                    <div id="grid-my" class="video-grid active-grid"></div>
+                    <div id="grid-liked" class="video-grid"></div>
                 </div>
-                <div class="profile-tabs">
-                    <div class="tab active" onclick="switchGrid('my', this)">Видео</div>
-                    <div class="tab" onclick="switchGrid('liked', this)">Лайки</div>
-                </div>
-                <div id="grid-my" class="video-grid active-grid"></div>
-                <div id="grid-liked" class="video-grid"></div>
             </section>
         </main>
 
-        <nav class="mobile-navbar">
-            <div class="nav-icon" onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
-            <div class="nav-icon create-plus" onclick="handlePlusClick()">+</div>
-            <div class="nav-icon" onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
+        <nav class="mobile-bottom-nav">
+            <div class="nav-btn" onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
+            <div class="nav-btn center-plus" onclick="handleMobileAdd()">+</div>
+            <div class="nav-btn" onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
         </nav>
 
-        <div id="upload-menu" class="modal-bg" onclick="this.style.display='none'">
-            <div class="menu-sheet" onclick="event.stopPropagation()">
-                <div class="bar"></div>
-                <button onclick="openCamera()"><i class="fas fa-camera"></i> Камера</button>
-                <button onclick="document.getElementById('vid-input').click()"><i class="fas fa-file-video"></i> Из галереи</button>
+        <div id="mob-upload-menu" class="bottom-sheet-overlay" onclick="this.style.display='none'">
+            <div class="bottom-sheet" onclick="event.stopPropagation()">
+                <div class="handle"></div>
+                <button onclick="openCamera()"><i class="fas fa-camera"></i> Снять сейчас</button>
+                <button onclick="document.getElementById('vid-input').click()"><i class="fas fa-upload"></i> Загрузить из галереи</button>
             </div>
         </div>
-
-        <div id="cam-overlay" class="camera-mode">
-            <video id="cam-preview" autoplay playsinline muted></video>
-            <div class="cam-controls">
-                <div class="cam-btn flip" onclick="flipCamera()"><i class="fas fa-sync-alt"></i></div>
-                <div id="rec-btn" class="cam-btn record" onclick="toggleRecording()"></div>
-                <div class="cam-btn close" onclick="closeCamera()">×</div>
-            </div>
-        </div>
-
-        <input type="file" id="vid-input" accept="video/*" hidden onchange="uploadFile(event)">
-        <input type="file" id="pfp-input" accept="image/*" hidden onchange="uploadPfp(event)">
     </div>
+
+    <input type="file" id="vid-input" accept="video/*" hidden onchange="uploadFile(event)">
+    <input type="file" id="pfp-input" accept="image/*" hidden onchange="uploadPfp(event)">
+
     <script src="script.js"></script>
 </body>
 </html>
