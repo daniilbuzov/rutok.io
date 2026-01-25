@@ -1,141 +1,97 @@
 let db;
-let currentVid = null;
-let likes = JSON.parse(localStorage.getItem('t_likes')) || [];
-let following = JSON.parse(localStorage.getItem('t_follows')) || [];
-let comments = JSON.parse(localStorage.getItem('t_comments')) || {};
+let currentVidId = null;
+let likes = JSON.parse(localStorage.getItem('L')) || [];
+let comms = JSON.parse(localStorage.getItem('C')) || {};
 
-// 10 Тестовых видео разных категорий
-const testVids = [
-    { id: 'b1', user: '@nature_wow', desc: 'Красота гор 🏔️', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=1' },
-    { id: 'b2', user: '@chef_mario', desc: 'Лучший рецепт пасты 🍝', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=2' },
-    { id: 'b3', user: '@space_x', desc: 'Запуск ракеты в 4К 🚀', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=3' },
-    { id: 'b4', user: '@fitness_girl', desc: 'Утренняя тренировка 💪', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=4' },
-    { id: 'b5', user: '@gaming_pro', desc: 'Эпичный момент! 🎮', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=5' },
-    { id: 'b6', user: '@travel_blog', desc: 'Мой отпуск на Бали 🏝️', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=6' },
-    { id: 'b7', user: '@car_lover', desc: 'Звук мотора V8 🏎️', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=7' },
-    { id: 'b8', user: '@funny_cats', desc: 'Кот против огурца 🐈', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackAds.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=8' },
-    { id: 'b9', user: '@ocean_life', desc: 'Тайны морских глубин 🌊', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=9' },
-    { id: 'b10', user: '@science_daily', desc: 'Как работает квантовый комп? 🧪', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=10' }
+// 10 Тестовых видео (Разные авторы и контент)
+const bots = [
+    {id: 'b1', user: '@nature', desc: 'Водопад 🌊', url: 'https://v.ftcdn.net/05/52/63/14/700_F_552631481_f9T7Y5jWn5Xq7zVl9f0jH3rWfGfQ6YmS_ST.mp4'},
+    {id: 'b2', user: '@cooking', desc: 'Пицца 🍕', url: 'https://v.ftcdn.net/02/94/80/34/700_F_294803405_T0L9i8Zq5mPqS2e9r7H6A5GjN1XyW.mp4'},
+    {id: 'b3', user: '@cars', desc: 'Дрифт 🏎️', url: 'https://v.ftcdn.net/04/18/39/39/700_F_418393931_mI7N6L9mN8R8y5Zl4E7H8v9B2F5G6.mp4'},
+    {id: 'b4', user: '@space', desc: 'Звезды ✨', url: 'https://v.ftcdn.net/01/82/73/45/700_F_182734567_mXyZ1W2V3U4T5S6R7Q8P9.mp4'},
+    {id: 'b5', user: '@dance', desc: 'Танцы 💃', url: 'https://v.ftcdn.net/03/44/12/34/700_F_344123456_nBvC1XzZ2W3Y4U5I6O7P8.mp4'},
+    {id: 'b6', user: '@cats', desc: 'Котик 🐈', url: 'https://v.ftcdn.net/02/11/44/55/700_F_211445566_fGhJ1K2L3M4N5P6O7I8U.mp4'},
+    {id: 'b7', user: '@travel', desc: 'Горы 🏔️', url: 'https://v.ftcdn.net/04/55/22/11/700_F_455221133_qWeR1T2Y3U4I5O6P7A8S.mp4'},
+    {id: 'b8', user: '@sport', desc: 'Гол! ⚽', url: 'https://v.ftcdn.net/01/22/33/44/700_F_122334455_zXcV1B2N3M4L5K6J7H8G.mp4'},
+    {id: 'b9', user: '@art', desc: 'Рисование 🎨', url: 'https://v.ftcdn.net/05/66/77/88/700_F_566778899_pOiU1Y2T3R4E5W6Q7A8S.mp4'},
+    {id: 'b10', user: '@tech', desc: 'Робот 🤖', url: 'https://v.ftcdn.net/02/33/44/11/700_F_233441122_lKjH1G2F3D4S5A6P7O8I.mp4'}
 ];
 
-const req = indexedDB.open("TikTokDB", 1);
-req.onupgradeneeded = e => e.target.result.createObjectStore("videos", { keyPath: "id", autoIncrement: true });
-req.onsuccess = e => { db = e.target.result; init(); };
+const req = indexedDB.open("TikTokV3", 1);
+req.onupgradeneeded = e => e.target.result.createObjectStore("v", { keyPath: "id", autoIncrement: true });
+req.onsuccess = e => { db = e.target.result; load(); };
 
-function init() {
-    renderFeed();
-}
-
-// ЛЕНТА
-function renderFeed() {
-    const feed = document.getElementById('s-feed');
-    feed.innerHTML = '';
-    
-    // Получаем свои видео из БД и объединяем с ботами
-    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        const myVids = e.target.result.map(v => ({...v, user: '@me', pfp: 'https://api.dicebear.com/7.x/avataaars/svg?seed=me', url: URL.createObjectURL(v.blob)}));
-        const all = [...myVids, ...testVids].sort(() => Math.random() - 0.5);
-
-        all.forEach(vid => {
-            const card = document.createElement('div');
-            card.className = 'v-card';
-            card.innerHTML = `<video src="${vid.url}" loop playsinline muted></video>`;
-            card.onclick = () => openViewer(vid);
-            feed.appendChild(card);
-            obs.observe(card);
-        });
+function load() {
+    db.transaction("v").objectStore("v").getAll().onsuccess = e => {
+        const myVids = e.target.result.map(v => ({...v, user: '@me', url: URL.createObjectURL(v.blob)}));
+        renderFeed([...myVids, ...bots]);
     };
 }
 
-// VIEWER
-function openViewer(vid) {
-    currentVid = vid;
-    document.getElementById('viewer').style.display = 'block';
-    const player = document.getElementById('v-video');
-    player.src = vid.url;
-    player.play();
-
-    // UI
-    document.getElementById('v-author-pfp').src = vid.pfp;
-    document.querySelector('.v-author-block span').innerText = vid.user;
-    document.getElementById('v-desc-text').innerText = vid.desc || 'Без описания';
-    
-    updateLikeUI();
-    renderComments();
-}
-
-function handleLike() {
-    if (likes.includes(currentVid.id)) likes = likes.filter(id => id !== currentVid.id);
-    else likes.push(currentVid.id);
-    localStorage.setItem('t_likes', JSON.stringify(likes));
-    updateLikeUI();
-}
-
-function updateLikeUI() {
-    const icon = document.getElementById('v-like-icon');
-    icon.className = likes.includes(currentVid.id) ? 'fas fa-heart liked' : 'fas fa-heart';
-}
-
-function renderComments() {
-    const list = document.getElementById('v-comm-list');
-    list.innerHTML = '';
-    const comms = comments[currentVid.id] || [{user: '@system', text: 'Будьте первым!'}];
-    comms.forEach(c => {
-        list.innerHTML += `<div class="comm-item"><b>${c.user}</b>${c.text}</div>`;
+function renderFeed(list) {
+    const f = document.getElementById('s-feed');
+    f.innerHTML = '';
+    list.forEach(v => {
+        const div = document.createElement('div');
+        div.className = 'v-card';
+        div.innerHTML = `
+            <video src="${v.url}" loop playsinline></video>
+            <div class="v-ui">
+                <i class="fas fa-heart ${likes.includes(v.id)?'liked':''}" onclick="like('${v.id}', this)"></i>
+                <i class="fas fa-comment" onclick="openComments('${v.id}')"></i>
+            </div>
+            <div style="position:absolute; bottom:20px; left:15px; text-shadow:1px 1px 5px #000">
+                <b onclick="showScreen('profile')" style="cursor:pointer">${v.user}</b>
+                <p>${v.desc || ''}</p>
+            </div>
+        `;
+        div.onclick = (e) => { if(e.target.tagName !== 'I' && e.target.tagName !== 'B') { const vid = div.querySelector('video'); vid.paused ? vid.play() : vid.pause(); } };
+        f.appendChild(div);
+        obs.observe(div);
     });
 }
 
-function addComment() {
-    const msg = document.getElementById('v-msg');
+function like(id, el) {
+    el.classList.toggle('liked');
+    likes.includes(id) ? likes = likes.filter(i => i !== id) : likes.push(id);
+    localStorage.setItem('L', JSON.stringify(likes));
+}
+
+function openComments(id) {
+    currentVidId = id;
+    document.getElementById('comm-side').style.display = 'flex';
+    renderComms();
+}
+
+function closeComments() { document.getElementById('comm-side').style.display = 'none'; }
+
+function renderComms() {
+    const list = document.getElementById('comm-list');
+    list.innerHTML = (comms[currentVidId] || []).map(c => `<p style="margin-bottom:10px"><b>User:</b> ${c}</p>`).join('') || 'Нет комментариев';
+}
+
+function sendComment() {
+    const msg = document.getElementById('comm-msg');
     if (!msg.value) return;
-    if (!comments[currentVid.id]) comments[currentViewingId] = [];
-    comments[currentVid.id] = comments[currentVid.id] || [];
-    comments[currentVid.id].push({user: '@you', text: msg.value});
-    localStorage.setItem('t_comments', JSON.stringify(comments));
+    if (!comms[currentVidId]) comms[currentVidId] = [];
+    comms[currentVidId].push(msg.value);
+    localStorage.setItem('C', JSON.stringify(comms));
     msg.value = '';
-    renderComments();
+    renderComms();
 }
 
-// ПРОФИЛЬ
-function openUserFromViewer() {
-    closeViewer();
-    showUserProfile(currentVid.user);
-}
-
-function showUserProfile(username) {
+function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('s-profile').classList.add('active');
-    
-    const isMe = username === '@me';
-    document.getElementById('p-name').innerText = username;
-    document.getElementById('follow-btn').style.display = isMe ? 'none' : 'block';
-    
-    // Поиск видео автора
-    db.transaction("videos").objectStore("videos").getAll().onsuccess = e => {
-        const myVids = e.target.result.map(v => ({...v, user: '@me', url: URL.createObjectURL(v.blob)}));
-        const all = [...myVids, ...testVids];
-        const userVids = all.filter(v => v.user === username);
-        
+    document.getElementById('s-' + id).classList.add('active');
+    if (id === 'profile') loadProfile();
+}
+
+function loadProfile() {
+    db.transaction("v").objectStore("v").getAll().onsuccess = e => {
         const grid = document.getElementById('p-grid');
-        grid.innerHTML = '';
-        userVids.forEach(v => {
-            grid.innerHTML += `<div class="g-item" onclick='openViewer(${JSON.stringify(v)})'><video src="${v.url}#t=0.5"></video></div>`;
-        });
-        
-        document.getElementById('p-vcount').innerText = userVids.length;
-        document.getElementById('p-avatar').src = userVids[0]?.pfp || '';
+        grid.innerHTML = e.target.result.map(v => `<div class="grid-item"><video src="${URL.createObjectURL(v.blob)}"></video></div>`).join('');
+        document.getElementById('p-v-count').innerText = e.target.result.length;
     };
-}
-
-function showMyProfile() { showUserProfile('@me'); }
-function showFeed() { 
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('s-feed').classList.add('active');
-}
-
-function closeViewer() {
-    document.getElementById('viewer').style.display = 'none';
-    document.getElementById('v-video').pause();
 }
 
 function handlePlus() { document.getElementById('f-vid').click(); }
@@ -143,16 +99,11 @@ function handlePlus() { document.getElementById('f-vid').click(); }
 function uploadFile(e) {
     const file = e.target.files[0];
     if (file) {
-        const tx = db.transaction("videos", "readwrite");
-        tx.objectStore("videos").add({ blob: file, id: 'my_'+Date.now(), desc: 'Моё новое видео' });
-        tx.oncomplete = () => location.reload();
+        db.transaction("v", "readwrite").objectStore("v").add({blob: file, id: 'my'+Date.now()});
+        setTimeout(() => location.reload(), 500);
     }
 }
 
-const obs = new IntersectionObserver(ents => {
-    ents.forEach(e => {
-        const v = e.target.querySelector('video');
-        if (e.isIntersecting) v.play().catch(() => {});
-        else v.pause();
-    });
+const obs = new IntersectionObserver(es => {
+    es.forEach(e => { const v = e.target.querySelector('video'); e.isIntersecting ? v.play() : v.pause(); });
 }, { threshold: 0.8 });
