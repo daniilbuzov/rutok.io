@@ -3,34 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Classic + Delete</title>
+    <title>TikTok Classic</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
+    <div class="app">
         <main id="s-feed" class="screen active"></main>
 
         <section id="s-profile" class="screen">
-            <div class="profile-header">
-                <div class="avatar-big"></div>
-                <h2>@my_account</h2>
-                <div class="stats">
-                    <span><b id="v-count">0</b> видео</span>
-                </div>
+            <div class="p-header">
+                <div class="avatar"></div>
+                <h2>@my_profile</h2>
+                <div class="stats"><b>0</b> подписок · <b id="p-v-count">0</b> видео</div>
             </div>
-            <div class="video-grid" id="p-grid"></div>
+            <div class="p-grid" id="p-grid"></div>
         </section>
 
-        <nav class="bottom-nav">
-            <div class="nav-item" onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
-            <div class="nav-item plus" onclick="document.getElementById('f-in').click()">+</div>
-            <div class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
+        <nav class="nav">
+            <div onclick="show('feed')"><i class="fas fa-home"></i></div>
+            <div class="plus" onclick="document.getElementById('f-in').click()">+</div>
+            <div onclick="show('profile')"><i class="fas fa-user"></i></div>
         </nav>
     </div>
 
-    <input type="file" id="f-in" accept="video/*" hidden onchange="handleUpload(event)">
-
+    <input type="file" id="f-in" accept="video/*" hidden onchange="upload(event)">
     <script src="script.js"></script>
 </body>
 </html>
