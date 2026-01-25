@@ -1,48 +1,57 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #fff; color: #161823; font-family: -apple-system, sans-serif; height: 100vh; overflow: hidden; }
+body { background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
 
-.app { display: flex; height: 100vh; width: 100%; }
+.app-container { height: 100vh; display: flex; flex-direction: column; }
 
-/* ПК Сайдбар */
-.sidebar-pc { width: 260px; border-right: 1px solid #f1f1f2; display: none; flex-direction: column; padding: 20px; background: #fff; }
-.logo { font-size: 30px; font-weight: 800; margin-bottom: 20px; }
-.logo span { color: #fe2c55; }
-.n-btn { padding: 12px; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: 600; margin-bottom: 5px; }
-.n-btn.active { color: #fe2c55; background: rgba(254,44,85,0.05); }
-.add-pc { background: #fe2c55; color: #fff; border: none; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 20px; }
-
-/* Основная зона */
-.view-area { flex: 1; height: 100%; position: relative; background: #fff; }
-.screen { display: none; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+/* ИСПРАВЛЕННЫЙ СКРОЛЛ ДЛЯ ПК И ТЕЛЕФОНОВ */
+.screen { 
+    display: none; 
+    flex: 1; 
+    overflow-y: auto; 
+    scroll-snap-type: y mandatory; 
+    height: calc(100vh - 60px); 
+}
 .screen.active { display: block; }
 
-/* Видео карточка */
-.v-card { height: 100%; width: 100%; scroll-snap-align: start; background: #fff; display: flex; align-items: center; justify-content: center; position: relative; }
-.v-card video { max-width: 100%; max-height: 100%; object-fit: contain; background: #000; }
+.v-card { 
+    height: 100%; 
+    width: 100%; 
+    scroll-snap-align: start; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative; 
+    background: #000;
+}
+video { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-/* Кнопки на видео */
-.v-ui { position: absolute; right: 12px; bottom: 80px; display: flex; flex-direction: column; gap: 20px; z-index: 5; }
-.v-ui i { font-size: 32px; color: #fff; filter: drop-shadow(0 0 4px rgba(0,0,0,0.4)); cursor: pointer; }
+/* ИКОНКИ ПОВЕРХ */
+.side-ui { position: absolute; right: 15px; bottom: 40px; display: flex; flex-direction: column; gap: 20px; }
+.side-ui i { font-size: 30px; text-shadow: 0 0 5px #000; cursor: pointer; }
 
-/* Навбар мобильный */
-.mobile-bar { position: fixed; bottom: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #f1f1f2; display: flex; z-index: 100; }
-.mobile-bar div { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #161823; }
-.plus-btn { background: #161823; color: #fff !important; border-radius: 8px; margin: 12px 25%; font-weight: bold; font-size: 20px !important; }
+/* МЕНЮ */
+.bottom-nav { 
+    height: 60px; 
+    background: #000; 
+    border-top: 1px solid #222; 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+}
+.nav-item { font-size: 24px; color: #888; cursor: pointer; }
+.plus { background: #fff; color: #000; width: 45px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-/* Модалка */
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: flex-end; z-index: 200; }
-.modal-box { width: 100%; background: #fff; padding: 20px; border-radius: 16px 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
-.bar { width: 40px; height: 4px; background: #eee; border-radius: 2px; margin: 0 auto 10px; }
-.modal-box button { padding: 16px; border: none; background: #f8f8f8; color: #161823; border-radius: 10px; font-size: 16px; font-weight: 600; text-align: left; }
+/* ПРОФИЛЬ И СЕТКА */
+.profile-header { padding: 40px 20px; text-align: center; }
+.avatar-big { width: 80px; height: 80px; background: #333; border-radius: 50%; margin: 0 auto 10px; border: 2px solid #fe2c55; }
+.video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; }
+.grid-item { aspect-ratio: 3/4; position: relative; background: #111; }
+.grid-item video { width: 100%; height: 100%; object-fit: cover; }
 
-/* Профиль */
-.user-info { padding: 40px 20px; text-align: center; }
-.avatar { width: 80px; height: 80px; border-radius: 50%; border: 1px solid #eee; margin-bottom: 10px; }
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; }
-.g-item { aspect-ratio: 3/4; background: #f8f8f8; overflow: hidden; }
-.g-item video { width: 100%; height: 100%; object-fit: cover; }
-
-@media (min-width: 900px) {
-    .sidebar-pc { display: flex; }
-    .mobile-bar { display: none; }
+/* НОВАЯ ФУНКЦИЯ: КНОПКА УДАЛЕНИЯ */
+.del-btn { 
+    position: absolute; top: 5px; right: 5px; 
+    background: rgba(254, 44, 85, 0.8); color: #fff; 
+    border: none; border-radius: 4px; padding: 2px 6px; 
+    font-size: 10px; cursor: pointer; 
 }
