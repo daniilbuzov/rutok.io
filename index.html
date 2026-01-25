@@ -3,71 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Web Pro</title>
+    <title>TikTok Camera Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="logo">TikTok<span>Clone</span></div>
-            <div class="side-nav">
-                <div class="nav-item active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Для вас</div>
-                <div class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
-            </div>
+    <div class="app-shell">
+        <aside class="pc-sidebar">
+            <div class="logo">TikTok<span>PRO</span></div>
+            <nav>
+                <div class="side-link active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Главная</div>
+                <div class="side-link" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
+            </nav>
         </aside>
 
-        <main class="main-content">
+        <main class="content">
             <section id="s-feed" class="screen active"></section>
-
             <section id="s-profile" class="screen">
-                <div class="profile-header">
-                    <div class="avatar-wrap" onclick="document.getElementById('pfp-input').click()">
-                        <img id="my-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky">
+                <div class="p-header">
+                    <div class="p-pfp" onclick="document.getElementById('pfp-input').click()">
+                        <img id="user-pfp" src="https://api.dicebear.com/7.x/pixel-art/svg?seed=1">
                     </div>
-                    <h2 id="my-name" contenteditable="true" onblur="saveProfile()">@user_name</h2>
-                    <div class="p-stats">
-                        <span><b id="c-vids">0</b> видео</span>
-                        <span><b id="c-likes">0</b> лайков</span>
-                    </div>
+                    <h2 id="user-name" contenteditable="true">@username</h2>
                 </div>
-                <div class="tabs">
+                <div class="p-tabs">
                     <div class="tab active" onclick="switchGrid('my', this)">Видео</div>
                     <div class="tab" onclick="switchGrid('liked', this)">Лайки</div>
                 </div>
-                <div id="g-my" class="video-grid active-grid"></div>
-                <div id="g-liked" class="video-grid"></div>
+                <div id="g-my" class="grid active-grid"></div>
+                <div id="g-liked" class="grid"></div>
             </section>
         </main>
 
         <nav class="mobile-nav">
             <div onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
-            <label for="vid-input" class="upload-btn">+</label>
+            <div class="plus-btn" onclick="handlePlusClick()">+</div>
             <div onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
         </nav>
 
-        <div id="video-viewer" class="viewer-modal">
-            <div class="viewer-body">
-                <div class="close-btn" onclick="closeViewer()">×</div>
-                <div class="viewer-player">
-                    <video id="viewer-video" loop playsinline></video>
-                </div>
-                <div class="viewer-side">
-                    <div class="author-info">
-                        <b id="viewer-author">@author</b>
-                        <p id="viewer-desc">Описание видео...</p>
-                    </div>
-                    <div id="comment-list" class="comments-box"></div>
-                    <div class="input-box">
-                        <input type="text" id="comm-text" placeholder="Оставьте комментарий...">
-                        <button onclick="addComment()"><i class="fas fa-paper-plane"></i></button>
-                    </div>
-                </div>
+        <div id="upload-menu" class="modal-overlay" onclick="closeModals()">
+            <div class="menu-card" onclick="event.stopPropagation()">
+                <button onclick="openCamera()"><i class="fas fa-camera"></i> Снять видео</button>
+                <button onclick="document.getElementById('vid-input').click()"><i class="fas fa-file-upload"></i> Из галереи</button>
             </div>
         </div>
 
-        <input type="file" id="vid-input" accept="video/*" hidden onchange="handleUpload(event)">
-        <input type="file" id="pfp-input" accept="image/*" hidden onchange="handlePfp(event)">
+        <div id="camera-screen" class="camera-full">
+            <video id="cam-preview" autoplay playsinline muted></video>
+            <div class="cam-ui">
+                <div class="cam-close" onclick="closeCamera()">×</div>
+                <div class="cam-flip" onclick="flipCamera()"><i class="fas fa-sync"></i></div>
+                <div id="record-btn" class="record-trigger" onclick="toggleRecording()"></div>
+            </div>
+        </div>
+
+        <input type="file" id="vid-input" accept="video/*" hidden onchange="uploadFile(event)">
+        <input type="file" id="pfp-input" accept="image/*" hidden onchange="uploadPfp(event)">
     </div>
     <script src="script.js"></script>
 </body>
