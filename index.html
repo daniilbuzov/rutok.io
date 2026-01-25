@@ -3,67 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok World</title>
+    <title>TikTok Ultra Fix</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <main class="main-view">
+    <div class="app">
+        <aside class="sidebar">
+            <div class="logo">TikTok<span>Clone</span></div>
+            <div class="nav-links">
+                <div class="link active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Рекомендуем</div>
+                <div class="link" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
+            </div>
+            <button class="add-btn-pc" onclick="document.getElementById('f-vid').click()">+ Загрузить</button>
+        </aside>
+
+        <main class="viewport">
             <section id="s-feed" class="screen active"></section>
-            
+
             <section id="s-profile" class="screen">
-                <div class="profile-layout">
-                    <div class="profile-header">
-                        <div class="avatar-container">
-                            <img id="p-avatar" src="">
-                        </div>
-                        <h2 id="p-name">@username</h2>
-                        <button id="follow-btn" onclick="toggleFollow()">Подписаться</button>
-                        <div class="user-stats">
-                            <span><b id="p-vcount">0</b> видео</span>
-                            <span><b id="p-lcount">0</b> лайков</span>
-                        </div>
+                <div class="profile-top">
+                    <img id="p-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=me">
+                    <h2 id="p-username">@me</h2>
+                    <div class="p-stats">
+                        <span><b id="p-v-count">0</b> видео</span>
+                        <span><b id="p-l-count">0</b> лайков</span>
                     </div>
-                    <div id="p-grid" class="video-grid"></div>
                 </div>
+                <div class="p-grid" id="p-grid"></div>
             </section>
         </main>
 
-        <nav class="mobile-nav">
-            <div onclick="showFeed()"><i class="fas fa-home"></i></div>
-            <div class="plus-btn" onclick="handlePlus()">+</div>
-            <div onclick="showMyProfile()"><i class="fas fa-user"></i></div>
-        </nav>
-
-        <div id="viewer" class="viewer-modal">
-            <div class="v-close" onclick="closeViewer()">×</div>
-            <div class="v-content">
-                <div class="v-player-side">
-                    <video id="v-video" loop playsinline></video>
-                    <div class="v-overlay-ui">
-                        <div class="v-author-block" onclick="openUserFromViewer()">
-                            <img id="v-author-pfp" src="">
-                            <span>@author</span>
-                        </div>
-                        <div class="v-actions">
-                            <i id="v-like-icon" class="fas fa-heart" onclick="handleLike()"></i>
-                            <i class="fas fa-comment" onclick="focusComments()"></i>
-                        </div>
-                        <div class="v-desc" id="v-desc-text">Описание видео...</div>
-                    </div>
-                </div>
-                <div class="v-comment-side">
-                    <h3>Комментарии</h3>
-                    <div id="v-comm-list"></div>
-                    <div class="v-input">
-                        <input type="text" id="v-msg" placeholder="Добавить комментарий...">
-                        <button onclick="addComment()">📤</button>
-                    </div>
-                </div>
+        <aside class="comments-sidebar" id="comm-side">
+            <div class="comm-header">Комментарии <span onclick="closeComments()">×</span></div>
+            <div id="comm-list"></div>
+            <div class="comm-input">
+                <input type="text" id="comm-msg" placeholder="Написать...">
+                <button onclick="sendComment()">📤</button>
             </div>
-        </div>
+        </aside>
+
+        <nav class="mobile-nav">
+            <div onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
+            <div class="plus-circle" onclick="handlePlus()">+</div>
+            <div onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
+        </nav>
     </div>
+
     <input type="file" id="f-vid" hidden onchange="uploadFile(event)">
     <script src="script.js"></script>
 </body>
