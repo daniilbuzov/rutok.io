@@ -3,51 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok White Clean</title>
-    <style>body { background-color: #ffffff; margin: 0; }</style>
+    <title>TikTok Classic + Delete</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="app">
-        <aside class="sidebar-pc">
-            <h2 class="logo">TikTok<span>Lite</span></h2>
-            <div class="nav-links">
-                <div class="n-btn active" onclick="show('feed')"><i class="fas fa-home"></i> Главная</div>
-                <div class="n-btn" onclick="show('profile')"><i class="fas fa-user"></i> Профиль</div>
-            </div>
-            <button class="add-pc" onclick="document.getElementById('f-in').click()">+ Загрузить</button>
-        </aside>
+    <div class="app-container">
+        <main id="s-feed" class="screen active"></main>
 
-        <main class="view-area">
-            <div id="s-feed" class="screen active"></div>
-            
-            <div id="s-profile" class="screen">
-                <div class="user-info">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user7" class="avatar">
-                    <h3 id="p-name">@my_account</h3>
+        <section id="s-profile" class="screen">
+            <div class="profile-header">
+                <div class="avatar-big"></div>
+                <h2>@my_account</h2>
+                <div class="stats">
+                    <span><b id="v-count">0</b> видео</span>
                 </div>
-                <div class="grid" id="p-grid"></div>
             </div>
-        </main>
+            <div class="video-grid" id="p-grid"></div>
+        </section>
 
-        <nav class="mobile-bar">
-            <div onclick="show('feed')"><i class="fas fa-home"></i></div>
-            <div class="plus-btn" onclick="openPlusMenu()">+</div>
-            <div onclick="show('profile')"><i class="fas fa-user"></i></div>
+        <nav class="bottom-nav">
+            <div class="nav-item" onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
+            <div class="nav-item plus" onclick="document.getElementById('f-in').click()">+</div>
+            <div class="nav-item" onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
         </nav>
-
-        <div id="m-plus" class="modal" onclick="this.style.display='none'">
-            <div class="modal-box" onclick="event.stopPropagation()">
-                <div class="bar"></div>
-                <button onclick="document.getElementById('f-cam').click()"><i class="fas fa-camera"></i> Снять сейчас</button>
-                <button onclick="document.getElementById('f-in').click()"><i class="fas fa-file-video"></i> Из галереи</button>
-            </div>
-        </div>
     </div>
 
-    <input type="file" id="f-in" accept="video/*" hidden onchange="save(event)">
-    <input type="file" id="f-cam" accept="video/*" capture="user" hidden onchange="save(event)">
+    <input type="file" id="f-in" accept="video/*" hidden onchange="handleUpload(event)">
 
     <script src="script.js"></script>
 </body>
