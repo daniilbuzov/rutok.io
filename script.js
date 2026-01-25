@@ -1,102 +1,72 @@
-// Прямые рабочие ссылки на видео
-const videos = [
-    "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-    "https://vjs.zencdn.net/v/oceans.mp4",
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+let db;
+const vUrls = [
+    "https://v.ftcdn.net/04/18/39/39/700_F_418393931_mI7N6L9mN8R8y5Zl4E7H8v9B2F5G6.mp4",
+    "https://v.ftcdn.net/05/52/63/14/700_F_552631481_f9T7Y5jWn5Xq7zVl9f0jH3rWfGfQ6YmS_ST.mp4",
+    "https://v.ftcdn.net/02/11/44/55/700_F_211445566_fGhJ1K2L3M4N5P6O7I8U.mp4"
 ];
 
-let db;
-let likedList = JSON.parse(localStorage.getItem('likes')) || [];
+// БД
+const req = indexedDB.open("TK_DB", 1);
+req.onupgradeneeded = e => e.target.result.createObjectStore("vids", {autoIncrement: true});
+req.onsuccess = e => { db = e.target.result; render(); };
 
-// Инициализация базы данных
-const request = indexedDB.open("TiktokFix", 1);
-request.onupgradeneeded = e => e.target.result.createObjectStore("vids", {keyPath: "id", autoIncrement: true});
-request.onsuccess = e => { db = e.target.result; renderFeed(); };
-
-function renderFeed() {
+function render() {
     const feed = document.getElementById('s-feed');
     feed.innerHTML = '';
     
-    // Сначала показываем тестовые видео
-    videos.forEach((src, i) => addVideoToDOM(src, 'test-' + i));
+    // Сначала тестовые, потом свои
+    vUrls.forEach(url => addCard(url));
     
-    // Затем загружаем пользовательские
     db.transaction("vids").objectStore("vids").getAll().onsuccess = e => {
-        e.target.result.forEach(v => {
-            const url = URL.createObjectURL(v.blob);
-            addVideoToDOM(url, v.id);
-        });
+        e.target.result.forEach(file => addCard(URL.createObjectURL(file)));
     };
 }
 
-function addVideoToDOM(src, id) {
+function addCard(src) {
     const card = document.createElement('div');
     card.className = 'v-card';
-    const isLiked = likedList.includes(id) ? 'liked' : '';
-    
-    card.innerHTML = `
-        <video src="${src}" loop playsinline></video>
-        <div class="v-ui">
-            <i class="fas fa-heart ${isLiked}" onclick="toggleLike('${id}', this)"></i>
-            <i class="fas fa-comment"></i>
-            <i class="fas fa-share"></i>
-        </div>
-    `;
-    
-    // Клик для игры/паузы
-    card.onclick = (e) => {
-        if(e.target.tagName !== 'I') {
-            const v = card.querySelector('video');
-            v.paused ? v.play() : v.pause();
-        }
-    };
-    
+    card.innerHTML = `<video src="${src}" loop playsinline></video>
+                      <div style="position:absolute; right:15px; bottom:100px; display:flex; flex-direction:column; gap:20px;">
+                        <i class="fas fa-heart" onclick="this.style.color='#fe2c55'" style="font-size:30px"></i>
+                        <i class="fas fa-comment" style="font-size:30px"></i>
+                      </div>`;
+    card.onclick = () => { const v = card.querySelector('video'); v.paused ? v.play() : v.pause(); };
     document.getElementById('s-feed').appendChild(card);
-    observer.observe(card);
+    obs.observe(card);
 }
 
-function toggleLike(id, el) {
-    el.classList.toggle('liked');
-    if(el.classList.contains('liked')) likedList.push(id);
-    else likedList = likedList.filter(i => i !== id);
-    localStorage.setItem('likes', JSON.stringify(likedList));
-    document.getElementById('p-likes').innerText = likedList.length;
-}
-
-function showScreen(id) {
+function show(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('s-' + id).classList.add('active');
-    if(id === 'profile') loadProfile();
+    if(id === 'profile') loadGrid();
 }
 
-function handleUpload(e) {
-    const file = e.target.files[0];
-    if(file) {
-        const tx = db.transaction("vids", "readwrite");
-        tx.objectStore("vids").add({blob: file});
-        tx.oncomplete = () => location.reload();
-    }
-}
-
-function loadProfile() {
+function loadGrid() {
     const grid = document.getElementById('p-grid');
     grid.innerHTML = '';
     db.transaction("vids").objectStore("vids").getAll().onsuccess = e => {
         e.target.result.forEach(v => {
-            const url = URL.createObjectURL(v.blob);
-            grid.innerHTML += `<div class="g-item"><video src="${url}#t=0.5"></video></div>`;
+            grid.innerHTML += `<div class="g-item"><video src="${URL.createObjectURL(v)}#t=0.1"></video></div>`;
         });
     };
-    document.getElementById('p-likes').innerText = likedList.length;
 }
 
-// Автозапуск видео при скролле
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-        const v = entry.target.querySelector('video');
-        if (entry.isIntersecting) v.play().catch(() => {});
-        else v.pause();
-    });
-}, { threshold: 0.7 });
+function openPlusMenu() {
+    if(window.innerWidth > 900) triggerInput();
+    else document.getElementById('plus-menu').style.display = 'flex';
+}
+
+function triggerInput() { document.getElementById('f-in').click(); }
+function takeVideo() { document.getElementById('f-cam').click(); }
+
+function save(e) {
+    const file = e.target.files[0];
+    if(file) {
+        db.transaction("vids", "readwrite").objectStore("vids").add(file);
+        setTimeout(() => location.reload(), 500);
+    }
+}
+
+const obs = new IntersectionObserver(es => {
+    es.forEach(e => { const v = e.target.querySelector('video'); e.isIntersecting ? v.play() : v.pause(); });
+}, { threshold: 0.8 });
