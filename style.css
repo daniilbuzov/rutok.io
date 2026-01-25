@@ -1,51 +1,56 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-body { background: #000; color: #fff; overflow: hidden; height: 100dvh; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; color: #fff; font-family: -apple-system, sans-serif; overflow: hidden; }
 
-.app-wrapper { display: flex; height: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
+.app-container { display: flex; height: 100dvh; max-width: 1300px; margin: 0 auto; position: relative; }
 
-/* ПК Стили */
-.sidebar-pc { width: 250px; border-right: 1px solid #222; padding: 20px; display: none; flex-direction: column; }
-.logo { font-size: 24px; font-weight: bold; margin-bottom: 30px; }
-.pc-nav-item { padding: 12px; font-size: 18px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
-.pc-nav-item:hover { background: #111; }
-.pc-nav-item.active { color: #fe2c55; }
+/* Боковая панель ПК */
+.sidebar { width: 280px; padding: 20px; border-right: 1px solid #222; display: none; flex-direction: column; }
+.logo { font-size: 28px; font-weight: 900; margin-bottom: 20px; color: #fff; }
+.nav-item { padding: 12px; font-size: 18px; cursor: pointer; transition: 0.2s; border-radius: 8px; }
+.nav-item:hover { background: #111; }
+.nav-item.active { color: #fe2c55; font-weight: bold; }
 
-/* Мобильные стили (по умолчанию) */
-.content-area { flex: 1; position: relative; height: 100%; overflow: hidden; }
-.screen { display: none; height: calc(100% - 65px); overflow-y: scroll; scroll-snap-type: y mandatory; }
+/* Основной контент */
+.main-content { flex: 1; height: 100%; position: relative; overflow: hidden; }
+.screen { display: none; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
 .screen.active { display: block; }
 
 /* Видео в ленте */
-.v-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; }
+.v-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; border-bottom: 1px solid #111; }
 .v-card video { width: 100%; height: 100%; object-fit: contain; }
-.v-ui { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
-.v-ui i { font-size: 32px; cursor: pointer; text-shadow: 0 2px 5px #000; }
+.v-actions { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
+.v-actions i { font-size: 35px; cursor: pointer; text-shadow: 0 2px 5px #000; }
+.v-actions .liked { color: #fe2c55; }
 
 /* Профиль */
-.profile-top { padding: 40px 20px; text-align: center; }
-.pfp-box { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin: 0 auto 15px; border: 2px solid #fe2c55; }
-.pfp-box img { width: 100%; height: 100%; object-fit: cover; }
-.grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-.grid.active { display: grid; }
-.g-item { aspect-ratio: 3/4; background: #111; cursor: pointer; }
-.g-item video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.profile-header { padding: 40px 20px; text-align: center; }
+.avatar-wrap { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin: 0 auto 15px; border: 2px solid #fe2c55; cursor: pointer; }
+.avatar-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.tabs { display: flex; border-bottom: 1px solid #222; }
+.tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; color: #777; font-weight: bold; }
+.tab.active { color: #fff; border-bottom: 2px solid #fff; }
+.video-grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.video-grid.active-grid { display: grid; }
+.grid-item { aspect-ratio: 3/4; background: #111; cursor: pointer; }
+.grid-item video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
-/* Модалка Viewer */
-.video-viewer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; }
-.viewer-content { display: flex; height: 100%; max-width: 1000px; margin: 0 auto; }
-.video-side { flex: 1.5; background: #000; display: flex; align-items: center; }
-.video-side video { width: 100%; max-height: 100%; }
-.comment-side { flex: 1; background: #111; border-left: 1px solid #222; display: flex; flex-direction: column; }
-.comm-list { flex: 1; overflow-y: auto; padding: 20px; }
-.comm-input { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; }
-.comm-input input { flex: 1; background: #222; border: none; padding: 10px; color: #fff; border-radius: 5px; }
+/* Viewer (Модалка) */
+.viewer-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; }
+.viewer-body { display: flex; height: 100%; max-width: 1000px; margin: 0 auto; flex-direction: row; }
+.viewer-player { flex: 1.5; background: #000; display: flex; align-items: center; position: relative; }
+.viewer-player video { width: 100%; max-height: 100%; }
+.viewer-side { flex: 1; background: #111; display: flex; flex-direction: column; border-left: 1px solid #222; }
+.comments-box { flex: 1; overflow-y: auto; padding: 20px; border-top: 1px solid #222; }
+.input-box { padding: 20px; display: flex; gap: 10px; border-top: 1px solid #222; }
+.input-box input { flex: 1; background: #222; border: none; padding: 10px; color: #fff; border-radius: 8px; }
+.close-btn { position: absolute; top: 20px; left: 20px; font-size: 40px; cursor: pointer; z-index: 100; color: #fff; }
 
-/* Навигация */
-.mobile-nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+/* Мобильная навигация */
+.mobile-nav { position: fixed; bottom: 0; width: 100%; height: 60px; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
 .upload-btn { background: #fff; color: #000; width: 45px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-@media (min-width: 1024px) {
-    .sidebar-pc { display: flex; }
+@media (min-width: 900px) {
+    .sidebar { display: flex; }
     .mobile-nav { display: none; }
-    .v-card video { object-fit: contain; background: #111; }
+    .screen { height: 100dvh; }
 }
