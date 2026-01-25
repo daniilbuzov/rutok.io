@@ -1,45 +1,51 @@
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { background: #000; color: #fff; font-family: -apple-system, sans-serif; height: 100dvh; overflow: hidden; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { background: #000; color: #fff; overflow: hidden; height: 100dvh; }
 
-.app-container { width: 100%; height: 100%; max-width: 500px; margin: 0 auto; position: relative; }
+.app-wrapper { display: flex; height: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
 
-/* Экраны */
-.app-screen { display: none; height: calc(100% - 65px); overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
-.app-screen.active { display: block; }
+/* ПК Стили */
+.sidebar-pc { width: 250px; border-right: 1px solid #222; padding: 20px; display: none; flex-direction: column; }
+.logo { font-size: 24px; font-weight: bold; margin-bottom: 30px; }
+.pc-nav-item { padding: 12px; font-size: 18px; cursor: pointer; border-radius: 8px; transition: 0.3s; }
+.pc-nav-item:hover { background: #111; }
+.pc-nav-item.active { color: #fe2c55; }
 
-/* Карточка видео */
-.video-box { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; }
-video { width: 100%; height: 100%; object-fit: cover; }
+/* Мобильные стили (по умолчанию) */
+.content-area { flex: 1; position: relative; height: 100%; overflow: hidden; }
+.screen { display: none; height: calc(100% - 65px); overflow-y: scroll; scroll-snap-type: y mandatory; }
+.screen.active { display: block; }
 
-/* UI внутри видео */
-.ui-side { position: absolute; right: 15px; bottom: 100px; z-index: 50; display: flex; flex-direction: column; gap: 20px; text-align: center; }
-.ui-side i { font-size: 35px; text-shadow: 0 0 10px rgba(0,0,0,1); cursor: pointer; }
-.heart-on { color: #fe2c55; }
-
-.ui-text { position: absolute; bottom: 25px; left: 15px; z-index: 40; pointer-events: none; }
+/* Видео в ленте */
+.v-card { height: 100%; width: 100%; scroll-snap-align: start; position: relative; background: #000; }
+.v-card video { width: 100%; height: 100%; object-fit: contain; }
+.v-ui { position: absolute; right: 15px; bottom: 100px; display: flex; flex-direction: column; gap: 20px; z-index: 10; }
+.v-ui i { font-size: 32px; cursor: pointer; text-shadow: 0 2px 5px #000; }
 
 /* Профиль */
-.user-info { padding: 40px 0 20px; text-align: center; }
-.pfp-circle { width: 100px; height: 100px; margin: 0 auto 15px; border-radius: 50%; overflow: hidden; position: relative; border: 2px solid #fe2c55; cursor: pointer; }
-.pfp-circle img { width: 100%; height: 100%; object-fit: cover; }
-.pfp-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; }
-.pfp-circle:hover .pfp-overlay { opacity: 1; }
+.profile-top { padding: 40px 20px; text-align: center; }
+.pfp-box { width: 100px; height: 100px; border-radius: 50%; overflow: hidden; margin: 0 auto 15px; border: 2px solid #fe2c55; }
+.pfp-box img { width: 100%; height: 100%; object-fit: cover; }
+.grid { display: none; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.grid.active { display: grid; }
+.g-item { aspect-ratio: 3/4; background: #111; cursor: pointer; }
+.g-item video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 
-.profile-tabs { display: flex; border-bottom: 1px solid #222; }
-.tab-btn { flex: 1; background: none; border: none; color: #555; padding: 15px; font-size: 20px; cursor: pointer; }
-.tab-btn.active { color: #fff; border-bottom: 2px solid #fff; }
-
-.grid-display { display: none; grid-template-columns: repeat(3, 1fr); gap: 1px; }
-.active-grid { display: grid; }
-.grid-cell { aspect-ratio: 3/4; background: #111; overflow: hidden; }
+/* Модалка Viewer */
+.video-viewer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; }
+.viewer-content { display: flex; height: 100%; max-width: 1000px; margin: 0 auto; }
+.video-side { flex: 1.5; background: #000; display: flex; align-items: center; }
+.video-side video { width: 100%; max-height: 100%; }
+.comment-side { flex: 1; background: #111; border-left: 1px solid #222; display: flex; flex-direction: column; }
+.comm-list { flex: 1; overflow-y: auto; padding: 20px; }
+.comm-input { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; }
+.comm-input input { flex: 1; background: #222; border: none; padding: 10px; color: #fff; border-radius: 5px; }
 
 /* Навигация */
-.nav-menu { position: fixed; bottom: 0; width: 100%; max-width: 500px; height: 65px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; z-index: 1000; }
-.nav-link i { font-size: 24px; color: #777; }
-.plus-link { background: #fff; color: #000; width: 45px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+.mobile-nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
+.upload-btn { background: #fff; color: #000; width: 45px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-/* Модалка */
-.custom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
-.modal-body { background: #222; padding: 30px; border-radius: 20px; width: 85%; }
-.modal-body input { width: 100%; padding: 12px; margin: 20px 0; background: #111; border: 1px solid #333; color: #fff; border-radius: 8px; }
-.modal-body button { width: 100%; padding: 12px; background: #fe2c55; border: none; color: #fff; border-radius: 8px; font-weight: bold; }
+@media (min-width: 1024px) {
+    .sidebar-pc { display: flex; }
+    .mobile-nav { display: none; }
+    .v-card video { object-fit: contain; background: #111; }
+}
