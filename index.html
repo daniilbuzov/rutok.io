@@ -3,41 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RuTok/title>
+    <title>TikTok White Clean</title>
+    <style>body { background-color: #ffffff; margin: 0; }</style>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <div class="app">
-        <aside class="pc-side">
-            <h2 class="logo">TikTok<span>PRO</span></h2>
-            <div class="side-btn active" onclick="show('feed')"><i class="fas fa-home"></i> Главная</div>
-            <div class="side-btn" onclick="show('profile')"><i class="fas fa-user"></i> Профиль</div>
-            <button class="pc-plus" onclick="triggerInput()">+ Загрузить</button>
+        <aside class="sidebar-pc">
+            <h2 class="logo">TikTok<span>Lite</span></h2>
+            <div class="nav-links">
+                <div class="n-btn active" onclick="show('feed')"><i class="fas fa-home"></i> Главная</div>
+                <div class="n-btn" onclick="show('profile')"><i class="fas fa-user"></i> Профиль</div>
+            </div>
+            <button class="add-pc" onclick="document.getElementById('f-in').click()">+ Загрузить</button>
         </aside>
 
-        <main class="main">
+        <main class="view-area">
             <div id="s-feed" class="screen active"></div>
             
             <div id="s-profile" class="screen">
-                <div class="p-info">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user" class="pfp">
+                <div class="user-info">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=user7" class="avatar">
                     <h3 id="p-name">@my_account</h3>
                 </div>
-                <div class="p-grid" id="p-grid"></div>
+                <div class="grid" id="p-grid"></div>
             </div>
         </main>
 
-        <nav class="mob-nav">
+        <nav class="mobile-bar">
             <div onclick="show('feed')"><i class="fas fa-home"></i></div>
-            <div class="plus" onclick="openPlusMenu()">+</div>
+            <div class="plus-btn" onclick="openPlusMenu()">+</div>
             <div onclick="show('profile')"><i class="fas fa-user"></i></div>
         </nav>
 
-        <div id="plus-menu" class="modal" onclick="this.style.display='none'">
+        <div id="m-plus" class="modal" onclick="this.style.display='none'">
             <div class="modal-box" onclick="event.stopPropagation()">
-                <button onclick="takeVideo()"><i class="fas fa-camera"></i> Снять на камеру</button>
-                <button onclick="triggerInput()"><i class="fas fa-file-upload"></i> Загрузить файл</button>
+                <div class="bar"></div>
+                <button onclick="document.getElementById('f-cam').click()"><i class="fas fa-camera"></i> Снять сейчас</button>
+                <button onclick="document.getElementById('f-in').click()"><i class="fas fa-file-video"></i> Из галереи</button>
             </div>
         </div>
     </div>
