@@ -3,63 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TikTok Perfect UI</title>
+    <title>TikTok Classic Stable</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar-pc">
-            <div class="logo">TikTok<span>PRO</span></div>
-            <nav class="pc-nav">
-                <div class="pc-item active" onclick="showScreen('feed')"><i class="fas fa-home"></i> Главная</div>
-                <div class="pc-item" onclick="showScreen('profile')"><i class="fas fa-user"></i> Профиль</div>
-                <button class="pc-add-btn" onclick="document.getElementById('vid-input').click()">+ Создать</button>
-            </nav>
-        </aside>
+    <div class="app-wrapper">
+        <main id="s-feed" class="screen active"></main>
 
-        <main class="main-view">
-            <section id="s-feed" class="screen active"></section>
-            
-            <section id="s-profile" class="screen">
-                <div class="profile-layout">
-                    <div class="user-card">
-                        <div class="avatar" onclick="document.getElementById('pfp-input').click()">
-                            <img id="my-pfp" src="https://api.dicebear.com/7.x/avataaars/svg?seed=12">
-                        </div>
-                        <h2 id="my-name" contenteditable="true">@username</h2>
-                        <div class="user-stats">
-                            <span><b id="v-count">0</b> видео</span>
-                            <span><b id="l-count">0</b> лайков</span>
-                        </div>
-                    </div>
-                    <div class="grid-nav">
-                        <div class="g-tab active" onclick="setGrid('my', this)">Видео</div>
-                        <div class="g-tab" onclick="setGrid('liked', this)">Лайки</div>
-                    </div>
-                    <div id="grid-my" class="video-grid active-grid"></div>
-                    <div id="grid-liked" class="video-grid"></div>
-                </div>
-            </section>
-        </main>
-
-        <nav class="mobile-bottom-nav">
-            <div class="nav-btn" onclick="showScreen('feed')"><i class="fas fa-home"></i></div>
-            <div class="nav-btn center-plus" onclick="handleMobileAdd()">+</div>
-            <div class="nav-btn" onclick="showScreen('profile')"><i class="fas fa-user"></i></div>
-        </nav>
-
-        <div id="mob-upload-menu" class="bottom-sheet-overlay" onclick="this.style.display='none'">
-            <div class="bottom-sheet" onclick="event.stopPropagation()">
-                <div class="handle"></div>
-                <button onclick="openCamera()"><i class="fas fa-camera"></i> Снять сейчас</button>
-                <button onclick="document.getElementById('vid-input').click()"><i class="fas fa-upload"></i> Загрузить из галереи</button>
+        <section id="s-profile" class="screen">
+            <div class="profile-meta">
+                <div class="user-avatar"></div>
+                <h2>@my_account</h2>
+                <div class="stats"><b>0</b> Подписчиков · <b id="p-count">0</b> Видео</div>
             </div>
-        </div>
+            <div class="video-grid" id="p-grid"></div>
+        </section>
+
+        <nav class="main-nav">
+            <div class="nav-btn" onclick="goTo('feed')"><i class="fas fa-home"></i></div>
+            <div class="nav-btn upload" onclick="document.getElementById('file-in').click()">+</div>
+            <div class="nav-btn" onclick="goTo('profile')"><i class="fas fa-user"></i></div>
+        </nav>
     </div>
 
-    <input type="file" id="vid-input" accept="video/*" hidden onchange="uploadFile(event)">
-    <input type="file" id="pfp-input" accept="image/*" hidden onchange="uploadPfp(event)">
+    <input type="file" id="file-in" accept="video/*" hidden onchange="handleNewVideo(event)">
 
     <script src="script.js"></script>
 </body>
